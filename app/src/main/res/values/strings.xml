@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">AppLock</string>
+
+    <string name="set_pin_title">Set a PIN</string>
+    <string name="confirm_pin_title">Confirm your PIN</string>
+    <string name="set_pin_subtitle">This PIN protects your locked apps.</string>
+    <string name="pin_mismatch">PINs did not match. Try again.</string>
+
+    <string name="enter_pin_title">Enter PIN</string>
+    <string name="wrong_pin">Wrong PIN</string>
+
+    <string name="protection">Protection</string>
+    <string name="protection_on">Protection is on</string>
+    <string name="protection_off">Protection is off</string>
+
+    <string name="perm_usage">Grant "Usage access"</string>
+    <string name="perm_overlay">Allow "Display over other apps"</string>
+    <string name="perm_notifications">Allow notifications</string>
+    <string name="permissions_needed">Permissions needed</string>
+    <string name="all_permissions_granted">All permissions granted</string>
+
+    <string name="locked_apps_header">Choose apps to lock</string>
+    <string name="loading_apps">Loading apps…</string>
+
+    <string name="notif_channel_name">App lock protection</string>
+    <string name="notif_title">AppLock is protecting your apps</string>
+    <string name="notif_text">Locked apps will ask for your PIN.</string>
+
+    <string name="delete">Delete</string>
+</resources>

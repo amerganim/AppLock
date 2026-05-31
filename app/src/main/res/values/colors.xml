@@ -1,0 +1,8 @@
+<resources>
+    <color name="primary">#3F51B5</color>
+    <color name="primary_dark">#303F9F</color>
+    <color name="accent">#FF4081</color>
+    <color name="lock_bg">#11151F</color>
+    <color name="dot_stroke">#90A4AE</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
