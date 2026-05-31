@@ -1,5 +1,7 @@
 package com.example.applock
 
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var pinManager: PinManager
     private lateinit var prefs: LockPrefs
+    private lateinit var dpm: DevicePolicyManager
+    private lateinit var adminComponent: ComponentName
 
     /** True while we are the ones launching the lock screen (so onStop must not
      *  reset the authenticated flag). */
@@ -36,19 +40,29 @@ class MainActivity : AppCompatActivity() {
             refreshPermissionUi()
         }
 
+    private val adminEnableLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            // Regardless of the result, re-sync the tamper UI to reflect reality.
+            syncTamperUi()
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         pinManager = PinManager(this)
         prefs = LockPrefs(this)
+        dpm = getSystemService(DevicePolicyManager::class.java)
+        adminComponent = AdminReceiver.component(this)
 
         binding.appsList.layoutManager = LinearLayoutManager(this)
 
         binding.permUsage.setOnClickListener {
+            allowSettingsTemporarily()
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
         binding.permOverlay.setOnClickListener {
+            allowSettingsTemporarily()
             startActivity(
                 Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -69,6 +83,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.protectionSwitch.setOnCheckedChangeListener { _, checked ->
             onProtectionToggled(checked)
+        }
+        binding.tamperSwitch.setOnCheckedChangeListener { _, checked ->
+            onTamperToggled(checked)
         }
     }
 
@@ -95,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         binding.content.visibility = View.VISIBLE
         refreshPermissionUi()
         syncProtectionSwitch()
+        syncTamperUi()
         ensureServiceRunning()
         if (!appsLoaded) loadApps()
     }
@@ -111,20 +129,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onProtectionToggled(enable: Boolean) {
-        if (enable) {
-            if (!Permissions.hasRequired(this)) {
-                Toast.makeText(this, R.string.permissions_needed, Toast.LENGTH_SHORT).show()
-                binding.protectionSwitch.isChecked = false
-                refreshPermissionUi()
-                return
-            }
-            prefs.protectionEnabled = true
+        if (enable && !Permissions.hasRequired(this)) {
+            Toast.makeText(this, R.string.permissions_needed, Toast.LENGTH_SHORT).show()
+            binding.protectionSwitch.isChecked = false
+            refreshPermissionUi()
+            return
+        }
+        prefs.protectionEnabled = enable
+        applyServiceState()
+        updateProtectionLabel(enable)
+    }
+
+    /** Start the monitor if either protection or tamper-locking needs it; otherwise stop it. */
+    private fun applyServiceState() {
+        if ((prefs.protectionEnabled || prefs.antiUninstallEnabled) && Permissions.hasRequired(this)) {
             AppLockService.start(this)
         } else {
-            prefs.protectionEnabled = false
             AppLockService.stop(this)
         }
-        updateProtectionLabel(enable)
     }
 
     private fun syncProtectionSwitch() {
@@ -144,9 +166,53 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun ensureServiceRunning() {
-        if (prefs.protectionEnabled && Permissions.hasRequired(this)) {
+        val needed = prefs.protectionEnabled || prefs.antiUninstallEnabled
+        if (needed && Permissions.hasRequired(this)) {
             AppLockService.start(this)
         }
+    }
+
+    private fun onTamperToggled(enable: Boolean) {
+        prefs.antiUninstallEnabled = enable
+        // Anti-uninstall locking only bites while the monitor runs.
+        applyServiceState()
+        if (enable) {
+            if (!dpm.isAdminActive(adminComponent)) {
+                // Don't let the freshly-locked Settings block the admin consent screen.
+                allowSettingsTemporarily()
+                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
+                    .putExtra(
+                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                        getString(R.string.admin_explanation)
+                    )
+                adminEnableLauncher.launch(intent)
+            }
+        } else {
+            if (dpm.isAdminActive(adminComponent)) {
+                dpm.removeActiveAdmin(adminComponent)
+            }
+        }
+        syncTamperUi()
+    }
+
+    private fun syncTamperUi() {
+        val on = prefs.antiUninstallEnabled
+        binding.tamperSwitch.setOnCheckedChangeListener(null)
+        binding.tamperSwitch.isChecked = on
+        binding.tamperSwitch.setOnCheckedChangeListener { _, checked ->
+            onTamperToggled(checked)
+        }
+        val adminActive = dpm.isAdminActive(adminComponent)
+        binding.adminStatus.setText(
+            if (adminActive) R.string.admin_active else R.string.admin_inactive
+        )
+    }
+
+    /** Briefly mark the system Settings/installer screens as unlocked so our own
+     *  permission and device-admin flows aren't interrupted by the PIN prompt. */
+    private fun allowSettingsTemporarily() {
+        LockPrefs.PROTECTED_SYSTEM_PACKAGES.forEach { LockState.markUnlocked(it) }
     }
 
     private fun refreshPermissionUi() {

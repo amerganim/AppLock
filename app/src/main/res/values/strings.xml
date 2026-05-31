@@ -27,4 +27,13 @@
     <string name="notif_text">Locked apps will ask for your PIN.</string>
 
     <string name="delete">Delete</string>
+
+    <string name="tamper_title">Tamper protection</string>
+    <string name="tamper_switch">Block uninstall &amp; lock Settings</string>
+    <string name="tamper_desc">Locks the Settings app and registers a device administrator so AppLock can\'t be easily uninstalled. You\'ll need your PIN to open Settings.</string>
+    <string name="admin_active">Uninstall is blocked (device admin active).</string>
+    <string name="admin_inactive">Device admin not active — uninstall is not blocked.</string>
+    <string name="admin_description">Lets AppLock resist being uninstalled until you turn off tamper protection with your PIN.</string>
+    <string name="admin_explanation">Activate so AppLock cannot be uninstalled without your PIN. To remove AppLock later, turn off Tamper protection inside the app first.</string>
+    <string name="admin_disable_warning">Turn off Tamper protection inside AppLock (with your PIN) instead. Disabling here allows AppLock to be uninstalled.</string>
 </resources>

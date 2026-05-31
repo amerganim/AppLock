@@ -13,7 +13,8 @@ class BootReceiver : BroadcastReceiver() {
         ) return
 
         val prefs = LockPrefs(context)
-        if (prefs.protectionEnabled && Permissions.hasRequired(context)) {
+        val needed = prefs.protectionEnabled || prefs.antiUninstallEnabled
+        if (needed && Permissions.hasRequired(context)) {
             AppLockService.start(context)
         }
     }

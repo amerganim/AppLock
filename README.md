@@ -17,6 +17,9 @@ reboot — is platform-level Android. See the note at the bottom for why.
 - Unlocked apps re-lock automatically once you leave them.
 - Protection auto-restarts after reboot.
 - The app's own settings screen is gated behind the PIN.
+- **Tamper protection** (optional): locks the Settings app + package installers so the
+  Uninstall / Force-stop / Clear-data screens require the PIN, and registers a
+  **device administrator** so Android blocks uninstall until it's deactivated.
 
 ## Build & install
 
@@ -70,8 +73,26 @@ Then:
 | `AppLockService` | Foreground service; polls `UsageStatsManager` every ~600 ms and launches the lock screen when a locked app is detected. |
 | `LockScreenActivity` | Full-screen PIN prompt shown over a locked app (and to protect the app's own UI). `FLAG_SECURE`, excluded from recents, single-instance. |
 | `BootReceiver` | Restarts protection after reboot. |
+| `AdminReceiver` | Device administrator; lets Android block uninstall while tamper protection is on. |
 | `PinManager` | Salted-hash PIN storage in `EncryptedSharedPreferences`. |
 | `LockPrefs` / `LockState` | Persisted settings and in-memory unlock state. |
+
+### Tamper protection & uninstall
+
+The PIN and locked-app list live in AppLock's private storage, so a plain
+**uninstall wipes everything and removes all locks** — the classic app-locker
+bypass. Turning on **Tamper protection** closes the easy paths:
+
+- It adds `com.android.settings` and the package-installer/Play Store packages to
+  what the monitor locks, so reaching Uninstall / Force-stop / Clear-data prompts
+  for the PIN first.
+- It registers AppLock as a **device administrator**, so Android refuses to
+  uninstall it until the admin is deactivated — and that deactivation screen is in
+  Settings, which is now locked.
+
+To remove AppLock cleanly: turn Tamper protection **off** inside the app (with your
+PIN), then uninstall. This is not unbeatable — ADB, Safe Mode, or a factory reset
+can still remove it; only a system/MDM-provisioned app could fully prevent that.
 
 ### Known limitations
 

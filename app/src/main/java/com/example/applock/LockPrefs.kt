@@ -24,8 +24,25 @@ class LockPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_ENABLED, value).apply()
 
+    /** When on, the Settings app and package installers are locked too (anti-tamper). */
+    var antiUninstallEnabled: Boolean
+        get() = prefs.getBoolean(KEY_ANTI_UNINSTALL, false)
+        set(value) = prefs.edit().putBoolean(KEY_ANTI_UNINSTALL, value).apply()
+
     companion object {
         private const val KEY_LOCKED = "locked_apps"
         private const val KEY_ENABLED = "protection_enabled"
+        private const val KEY_ANTI_UNINSTALL = "anti_uninstall"
+
+        /**
+         * System screens that lead to uninstalling / disabling AppLock. Locking these
+         * forces a PIN before someone can reach Uninstall, Force-stop or Clear-data.
+         */
+        val PROTECTED_SYSTEM_PACKAGES: Set<String> = setOf(
+            "com.android.settings",
+            "com.android.packageinstaller",
+            "com.google.android.packageinstaller",
+            "com.android.vending" // Play Store (also offers uninstall)
+        )
     }
 }

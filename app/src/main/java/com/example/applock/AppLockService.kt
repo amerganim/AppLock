@@ -68,7 +68,13 @@ class AppLockService : Service() {
 
         if (LockState.lockScreenActive) return
 
-        if (prefs.isLocked(current) && !LockState.isUnlocked(current)) {
+        // User-chosen app locks honour the master Protection switch; the anti-uninstall
+        // lock on system screens applies whenever tamper protection is enabled.
+        val userLocked = prefs.protectionEnabled && prefs.isLocked(current)
+        val systemLocked = prefs.antiUninstallEnabled &&
+            LockPrefs.PROTECTED_SYSTEM_PACKAGES.contains(current)
+
+        if ((userLocked || systemLocked) && !LockState.isUnlocked(current)) {
             showLockScreen(current)
         }
     }
