@@ -29,10 +29,16 @@ class LockPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_ANTI_UNINSTALL, false)
         set(value) = prefs.edit().putBoolean(KEY_ANTI_UNINSTALL, value).apply()
 
+    /** When on (and hardware is enrolled), the lock screen offers fingerprint/face unlock. */
+    var biometricEnabled: Boolean
+        get() = prefs.getBoolean(KEY_BIOMETRIC, true)
+        set(value) = prefs.edit().putBoolean(KEY_BIOMETRIC, value).apply()
+
     companion object {
         private const val KEY_LOCKED = "locked_apps"
         private const val KEY_ENABLED = "protection_enabled"
         private const val KEY_ANTI_UNINSTALL = "anti_uninstall"
+        private const val KEY_BIOMETRIC = "biometric_enabled"
 
         /**
          * System screens that lead to uninstalling / disabling AppLock. Locking these

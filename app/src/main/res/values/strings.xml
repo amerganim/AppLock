@@ -9,6 +9,13 @@
     <string name="enter_pin_title">Enter PIN</string>
     <string name="wrong_pin">Wrong PIN</string>
 
+    <string name="use_fingerprint">Use fingerprint</string>
+    <string name="use_pin">Use PIN</string>
+    <string name="biometric_prompt_title">Unlock</string>
+    <string name="biometric_prompt_subtitle">Use your fingerprint or face to unlock</string>
+    <string name="biometric_unlock">Fingerprint unlock</string>
+    <string name="biometric_unlock_desc">Allow quick unlock with your fingerprint or face. Your PIN still works as a backup.</string>
+
     <string name="protection">Protection</string>
     <string name="protection_on">Protection is on</string>
     <string name="protection_off">Protection is off</string>

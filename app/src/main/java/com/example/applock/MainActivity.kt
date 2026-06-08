@@ -11,6 +11,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.applock.databinding.ActivityMainBinding
@@ -87,6 +89,9 @@ class MainActivity : AppCompatActivity() {
         binding.tamperSwitch.setOnCheckedChangeListener { _, checked ->
             onTamperToggled(checked)
         }
+        binding.biometricSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.biometricEnabled = checked
+        }
     }
 
     override fun onResume() {
@@ -113,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         refreshPermissionUi()
         syncProtectionSwitch()
         syncTamperUi()
+        syncBiometricUi()
         ensureServiceRunning()
         if (!appsLoaded) loadApps()
     }
@@ -207,6 +213,19 @@ class MainActivity : AppCompatActivity() {
         binding.adminStatus.setText(
             if (adminActive) R.string.admin_active else R.string.admin_inactive
         )
+    }
+
+    private fun syncBiometricUi() {
+        // Only offer the toggle when the device actually has usable biometric hardware.
+        val status = BiometricManager.from(this).canAuthenticate(BIOMETRIC_WEAK)
+        val hasHardware = status != BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE &&
+            status != BiometricManager.BIOMETRIC_STATUS_UNKNOWN
+        binding.biometricRow.visibility = if (hasHardware) View.VISIBLE else View.GONE
+        binding.biometricSwitch.setOnCheckedChangeListener(null)
+        binding.biometricSwitch.isChecked = prefs.biometricEnabled
+        binding.biometricSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.biometricEnabled = checked
+        }
     }
 
     /** Briefly mark the system Settings/installer screens as unlocked so our own

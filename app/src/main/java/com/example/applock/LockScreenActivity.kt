@@ -2,9 +2,14 @@ package com.example.applock
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import com.example.applock.databinding.ActivityLockScreenBinding
 
 /**
@@ -24,6 +29,8 @@ class LockScreenActivity : AppCompatActivity() {
     private lateinit var targetPackage: String
     private val isSelf get() = targetPackage == packageName
 
+    private var biometricPromptShowing = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Prevent the PIN from showing up in screenshots / the recents thumbnail.
@@ -39,12 +46,57 @@ class LockScreenActivity : AppCompatActivity() {
 
         pinPad = PinPad(binding.keypad, binding.dots) { pin -> verify(pin) }
 
+        if (biometricAvailable()) {
+            binding.fingerprintButton.visibility = View.VISIBLE
+            binding.fingerprintButton.setOnClickListener { showBiometricPrompt() }
+            showBiometricPrompt()
+        }
+
         // Back must not reveal the protected app; leave to the home screen instead.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 goHome()
             }
         })
+    }
+
+    private fun biometricAvailable(): Boolean {
+        if (!LockPrefs(this).biometricEnabled) return false
+        return BiometricManager.from(this).canAuthenticate(BIOMETRIC_WEAK) ==
+            BiometricManager.BIOMETRIC_SUCCESS
+    }
+
+    private fun showBiometricPrompt() {
+        if (biometricPromptShowing) return
+        biometricPromptShowing = true
+        val prompt = BiometricPrompt(
+            this,
+            ContextCompat.getMainExecutor(this),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    biometricPromptShowing = false
+                    unlock()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    // User cancelled / chose "Use PIN" / hit a lockout — fall back to the keypad.
+                    biometricPromptShowing = false
+                }
+
+                override fun onAuthenticationFailed() {
+                    // A single non-match; the prompt stays up for another try.
+                }
+            }
+        )
+        val title = if (isSelf) getString(R.string.app_name)
+        else binding.appName.text.ifEmpty { getString(R.string.biometric_prompt_title) }
+        val info = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title.toString())
+            .setSubtitle(getString(R.string.biometric_prompt_subtitle))
+            .setNegativeButtonText(getString(R.string.use_pin))
+            .setAllowedAuthenticators(BIOMETRIC_WEAK)
+            .build()
+        prompt.authenticate(info)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -74,16 +126,21 @@ class LockScreenActivity : AppCompatActivity() {
 
     private fun verify(pin: String) {
         if (pinManager.verify(pin)) {
-            if (isSelf) {
-                LockState.settingsAuthed = true
-            } else {
-                LockState.markUnlocked(targetPackage)
-            }
-            finish()
+            unlock()
         } else {
             binding.appName.setText(R.string.wrong_pin)
             pinPad.reset()
         }
+    }
+
+    /** Shared success path for both PIN and biometric unlock. */
+    private fun unlock() {
+        if (isSelf) {
+            LockState.settingsAuthed = true
+        } else {
+            LockState.markUnlocked(targetPackage)
+        }
+        finish()
     }
 
     private fun goHome() {
