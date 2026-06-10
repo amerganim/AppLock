@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    namespace = "com.example.applock"
-    compileSdk = 34
+    namespace = "com.amerganim.lockapp"
+    compileSdk = 35
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
-        applicationId = "com.example.applock"
-        minSdk = 24
-        targetSdk = 34
+        applicationId = "com.amerganim.lockapp"
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
     }
@@ -40,6 +40,7 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

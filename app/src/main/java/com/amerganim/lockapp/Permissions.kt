@@ -1,4 +1,4 @@
-package com.example.applock
+package com.amerganim.lockapp
 
 import android.app.AppOpsManager
 import android.content.Context

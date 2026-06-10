@@ -1,4 +1,4 @@
-package com.example.applock
+package com.amerganim.lockapp
 
 import android.app.admin.DeviceAdminReceiver
 import android.content.ComponentName

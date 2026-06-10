@@ -1,10 +1,10 @@
-package com.example.applock
+package com.amerganim.lockapp
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.applock.databinding.ActivitySetPinBinding
+import com.amerganim.lockapp.databinding.ActivitySetPinBinding
 
 /** First-run screen: enter a PIN, then confirm it. */
 class SetPinActivity : AppCompatActivity() {

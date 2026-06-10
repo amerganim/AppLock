@@ -1,10 +1,10 @@
-package com.example.applock
+package com.amerganim.lockapp
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.applock.databinding.ItemAppBinding
+import com.amerganim.lockapp.databinding.ItemAppBinding
 
 /** A launchable app the user can choose to lock. */
 data class AppEntry(

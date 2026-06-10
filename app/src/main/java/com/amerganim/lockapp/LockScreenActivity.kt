@@ -1,4 +1,4 @@
-package com.example.applock
+package com.amerganim.lockapp
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +10,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import com.example.applock.databinding.ActivityLockScreenBinding
+import com.amerganim.lockapp.databinding.ActivityLockScreenBinding
 
 /**
  * Full-screen PIN prompt. Two modes:

@@ -1,8 +1,8 @@
-package com.example.applock
+package com.amerganim.lockapp
 
 import android.widget.ImageView
-import com.example.applock.databinding.LayoutKeypadBinding
-import com.example.applock.databinding.ViewPinDotsBinding
+import com.amerganim.lockapp.databinding.LayoutKeypadBinding
+import com.amerganim.lockapp.databinding.ViewPinDotsBinding
 
 /**
  * Drives a shared PIN entry: wires the numeric keypad and renders the dot

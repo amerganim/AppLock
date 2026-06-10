@@ -1,17 +1,24 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.AppLock" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.LockApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
     </style>
 
     <!-- Full-screen, dark theme used for the lock screen shown over other apps. -->
-    <style name="Theme.AppLock.Lock" parent="Theme.AppLock">
+    <style name="Theme.LockApp.Lock" parent="Theme.LockApp">
         <item name="android:windowBackground">@color/lock_bg</item>
         <item name="android:statusBarColor">@color/lock_bg</item>
         <item name="android:navigationBarColor">@color/lock_bg</item>
         <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- Launch (splash) theme. installSplashScreen() swaps to Theme.LockApp after launch. -->
+    <style name="Theme.LockApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_lock</item>
+        <item name="postSplashScreenTheme">@style/Theme.LockApp</item>
     </style>
 
     <style name="PinKey" parent="Widget.Material3.Button.TextButton">
