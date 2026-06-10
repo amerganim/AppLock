@@ -1,12 +1,10 @@
 package com.amerganim.lockapp
 
-import java.util.Collections
-
 /**
  * In-memory runtime state shared between the monitoring service and the activities.
  *
- * Lives only while the process is alive — intentionally, so that everything
- * re-locks if the app is killed and restarted.
+ * Lives only while the process is alive — intentionally, so everything re-locks if
+ * the app is killed and restarted.
  */
 object LockState {
 
@@ -18,26 +16,29 @@ object LockState {
     @Volatile
     var lockScreenActive: Boolean = false
 
-    private val unlocked: MutableSet<String> =
-        Collections.synchronizedSet(mutableSetOf<String>())
+    /** Unlocked package -> last time it was seen in the foreground (ms). */
+    private val unlocked = HashMap<String, Long>()
 
-    fun isUnlocked(pkg: String): Boolean = unlocked.contains(pkg)
+    @Synchronized
+    fun isUnlocked(pkg: String): Boolean = unlocked.containsKey(pkg)
 
+    @Synchronized
     fun markUnlocked(pkg: String) {
-        unlocked.add(pkg)
+        unlocked[pkg] = System.currentTimeMillis()
     }
 
     /**
-     * Re-lock every previously unlocked app except [keep] (the app currently in the
-     * foreground). Called when the foreground app changes so that leaving a locked
-     * app and returning requires the PIN again.
+     * Per-tick bookkeeping: keep [current] fresh while it stays in the foreground, and
+     * re-lock any other unlocked app that has been away longer than [relockDelayMs].
      */
-    fun relockAllExcept(keep: String?) {
-        synchronized(unlocked) {
-            val it = unlocked.iterator()
-            while (it.hasNext()) {
-                if (it.next() != keep) it.remove()
-            }
+    @Synchronized
+    fun onTick(current: String, relockDelayMs: Long) {
+        val now = System.currentTimeMillis()
+        if (unlocked.containsKey(current)) unlocked[current] = now
+        val it = unlocked.entries.iterator()
+        while (it.hasNext()) {
+            val e = it.next()
+            if (e.key != current && now - e.value > relockDelayMs) it.remove()
         }
     }
 }

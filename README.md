@@ -1,22 +1,28 @@
-# AppLock
+# LockApp
 
-A simple Android app locker. Set a 4-digit PIN, choose which installed apps to
-protect, and whenever one of those apps is opened a full-screen PIN prompt appears
-over it. The app's own settings are PIN-protected too.
+A simple, private Android **app locker** (`com.amerganim.lockapp`). Choose a PIN or
+pattern, optionally add fingerprint/face unlock, pick which apps to protect, and
+whenever one of them is opened a full-screen lock prompt appears over it. The app's
+own UI is locked too.
 
 Built **natively in Kotlin** (not Flutter) because everything that makes an app
 locker work — detecting the foreground app, drawing over other apps, surviving
 reboot — is platform-level Android. See the note at the bottom for why.
 
+> Store listing, ASO keywords, privacy policy and the Play release checklist live in
+> [`docs/`](docs/).
+
 ## Features
 
-- 4-digit PIN, stored only as a salted SHA-256 hash inside `EncryptedSharedPreferences`.
-- Per-app lock toggles for every launchable app on the device.
+- **PIN or pattern** lock, stored only as a salted SHA-256 hash in `EncryptedSharedPreferences`.
+- **Fingerprint / face** quick unlock (PIN/pattern always works as a fallback).
+- **Forgot-PIN recovery** via a security question, so you can't get locked out.
+- Guided **onboarding** and a full **Settings** screen (change lock, recovery,
+  auto-lock timing, theme, fingerprint, tamper protection).
+- Per-app lock toggles with **search**, for every launchable app on the device.
 - A foreground service watches the foreground app and pops the lock screen when a
-  protected app is opened.
-- Unlocked apps re-lock automatically once you leave them.
-- Protection auto-restarts after reboot.
-- The app's own settings screen is gated behind the PIN.
+  protected app is opened; unlocked apps **re-lock** after a configurable delay.
+- Protection auto-restarts after reboot; the app's own UI is gated behind the lock.
 - **Tamper protection** (optional): locks the Settings app + package installers so the
   Uninstall / Force-stop / Clear-data screens require the PIN, and registers a
   **device administrator** so Android blocks uninstall until it's deactivated.

@@ -34,11 +34,25 @@ class LockPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_BIOMETRIC, true)
         set(value) = prefs.edit().putBoolean(KEY_BIOMETRIC, value).apply()
 
+    /** How long an unlocked app stays unlocked after you leave it, in milliseconds. */
+    var relockDelayMs: Long
+        get() = prefs.getLong(KEY_RELOCK_DELAY, 0L)
+        set(value) = prefs.edit().putLong(KEY_RELOCK_DELAY, value).apply()
+
+    /** Theme: AppCompatDelegate night mode (-1 follow system, 1 light, 2 dark). */
+    var themeMode: Int
+        get() = prefs.getInt(KEY_THEME, MODE_FOLLOW_SYSTEM)
+        set(value) = prefs.edit().putInt(KEY_THEME, value).apply()
+
     companion object {
         private const val KEY_LOCKED = "locked_apps"
         private const val KEY_ENABLED = "protection_enabled"
         private const val KEY_ANTI_UNINSTALL = "anti_uninstall"
         private const val KEY_BIOMETRIC = "biometric_enabled"
+        private const val KEY_RELOCK_DELAY = "relock_delay_ms"
+        private const val KEY_THEME = "theme_mode"
+
+        const val MODE_FOLLOW_SYSTEM = -1
 
         /**
          * System screens that lead to uninstalling / disabling AppLock. Locking these

@@ -13,8 +13,8 @@ import androidx.core.content.ContextCompat
 import com.amerganim.lockapp.databinding.ActivityLockScreenBinding
 
 /**
- * Full-screen PIN prompt. Two modes:
- *  - "self": shown to protect AppLock's own settings (launched by [MainActivity]).
+ * Full-screen unlock prompt (PIN or pattern, plus optional biometric). Two modes:
+ *  - "self": shown to protect LockApp's own settings (launched by [MainActivity]).
  *  - app lock: shown over a third-party app by [AppLockService].
  *
  * On success we don't pass an activity result (this activity is singleInstance, so
@@ -23,28 +23,34 @@ import com.amerganim.lockapp.databinding.ActivityLockScreenBinding
 class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLockScreenBinding
-    private lateinit var pinManager: PinManager
-    private lateinit var pinPad: PinPad
+    private lateinit var credential: CredentialManager
+    private var pinPad: PinPad? = null
 
     private lateinit var targetPackage: String
     private val isSelf get() = targetPackage == packageName
 
+    private var builtType: LockType? = null
     private var biometricPromptShowing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Prevent the PIN from showing up in screenshots / the recents thumbnail.
+        // Prevent the credential from showing up in screenshots / the recents thumbnail.
         window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
 
         binding = ActivityLockScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        pinManager = PinManager(this)
+        credential = CredentialManager(this)
         LockState.lockScreenActive = true
 
         targetPackage = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
         bindHeader()
+        buildInput()
 
-        pinPad = PinPad(binding.keypad, binding.dots) { pin -> verify(pin) }
+        binding.forgotButton.visibility =
+            if (credential.isRecoverySet()) View.VISIBLE else View.GONE
+        binding.forgotButton.setOnClickListener {
+            startActivity(Intent(this, RecoveryActivity::class.java))
+        }
 
         if (biometricAvailable()) {
             binding.fingerprintButton.visibility = View.VISIBLE
@@ -58,6 +64,32 @@ class LockScreenActivity : AppCompatActivity() {
                 goHome()
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The lock type may have changed via the "Forgot?" reset flow — rebuild if so.
+        if (builtType != credential.lockType()) buildInput()
+    }
+
+    /** Show the PIN keypad or the pattern grid depending on the saved lock type. */
+    private fun buildInput() {
+        val type = credential.lockType()
+        builtType = type
+        val pin = type == LockType.PIN
+        binding.dots.root.visibility = if (pin) View.VISIBLE else View.GONE
+        binding.keypad.root.visibility = if (pin) View.VISIBLE else View.GONE
+        binding.keypadSpacer.visibility = if (pin) View.VISIBLE else View.GONE
+        binding.patternView.visibility = if (pin) View.GONE else View.VISIBLE
+        binding.title.setText(if (pin) R.string.enter_pin_title else R.string.enter_pattern_title)
+
+        if (pin) {
+            if (pinPad == null) pinPad = PinPad(binding.keypad, binding.dots) { verify(it) }
+            pinPad?.reset()
+        } else {
+            binding.patternView.onPatternDetected = { indices -> verify(PatternLockView.encode(indices)) }
+            binding.patternView.clearPattern()
+        }
     }
 
     private fun biometricAvailable(): Boolean {
@@ -79,7 +111,7 @@ class LockScreenActivity : AppCompatActivity() {
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    // User cancelled / chose "Use PIN" / hit a lockout — fall back to the keypad.
+                    // Cancelled / "Use PIN" / lockout — fall back to the keypad or pattern.
                     biometricPromptShowing = false
                 }
 
@@ -104,7 +136,7 @@ class LockScreenActivity : AppCompatActivity() {
         setIntent(intent)
         targetPackage = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
         bindHeader()
-        pinPad.reset()
+        buildInput()
     }
 
     private fun bindHeader() {
@@ -124,16 +156,16 @@ class LockScreenActivity : AppCompatActivity() {
         }
     }
 
-    private fun verify(pin: String) {
-        if (pinManager.verify(pin)) {
+    private fun verify(value: String) {
+        if (credential.verify(value)) {
             unlock()
         } else {
-            binding.appName.setText(R.string.wrong_pin)
-            pinPad.reset()
+            binding.appName.setText(R.string.wrong_credential)
+            if (builtType == LockType.PIN) pinPad?.reset() else binding.patternView.showError()
         }
     }
 
-    /** Shared success path for both PIN and biometric unlock. */
+    /** Shared success path for PIN, pattern and biometric unlock. */
     private fun unlock() {
         if (isSelf) {
             LockState.settingsAuthed = true

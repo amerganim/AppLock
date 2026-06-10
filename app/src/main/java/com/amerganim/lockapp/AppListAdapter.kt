@@ -1,5 +1,6 @@
 package com.amerganim.lockapp
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,10 +15,19 @@ data class AppEntry(
 )
 
 class AppListAdapter(
-    private val items: List<AppEntry>,
+    items: List<AppEntry>,
     private val isLocked: (String) -> Boolean,
     private val onToggle: (String, Boolean) -> Unit
 ) : RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
+
+    private val items: MutableList<AppEntry> = items.toMutableList()
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun submit(newItems: List<AppEntry>) {
+        items.clear()
+        items.addAll(newItems)
+        notifyDataSetChanged()
+    }
 
     inner class AppViewHolder(val binding: ItemAppBinding) :
         RecyclerView.ViewHolder(binding.root)

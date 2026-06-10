@@ -7,9 +7,11 @@
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
+        app:menu="@menu/menu_main"
         app:title="@string/app_name"
         app:titleTextColor="@color/white" />
 
@@ -52,8 +54,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:drawablePadding="12dp"
                 android:gravity="start|center_vertical"
-                android:text="@string/perm_usage" />
+                android:text="@string/perm_usage"
+                app:icon="@drawable/ic_warning" />
 
             <TextView
                 android:id="@+id/permOverlay"
@@ -70,103 +74,25 @@
                 android:layout_height="wrap_content"
                 android:gravity="start|center_vertical"
                 android:text="@string/perm_notifications" />
-
-            <LinearLayout
-                android:id="@+id/biometricRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/biometric_unlock"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/biometric_unlock_desc"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/biometricSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="12dp"
-        android:layout_marginBottom="12dp"
-        app:cardCornerRadius="12dp">
+        app:startIconDrawable="@drawable/ic_search"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/tamper_switch"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/tamperSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/tamper_desc"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/adminStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/admin_inactive"
-                android:textSize="13sp"
-                android:textStyle="italic" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:text="@string/locked_apps_header"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+            android:hint="@string/search_apps"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -178,6 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:paddingTop="4dp"
             android:paddingBottom="16dp" />
 
         <ProgressBar

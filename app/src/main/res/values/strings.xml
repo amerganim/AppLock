@@ -1,46 +1,116 @@
 <resources>
     <string name="app_name">LockApp</string>
 
+    <!-- Setup / lock type -->
+    <string name="choose_lock_title">Choose how to lock</string>
+    <string name="lock_type_pin">PIN</string>
+    <string name="lock_type_pattern">Pattern</string>
     <string name="set_pin_title">Set a PIN</string>
     <string name="confirm_pin_title">Confirm your PIN</string>
-    <string name="set_pin_subtitle">This PIN protects your locked apps.</string>
+    <string name="set_pattern_title">Draw a pattern</string>
+    <string name="confirm_pattern_title">Draw the pattern again</string>
+    <string name="set_pin_subtitle">This protects the apps you lock.</string>
     <string name="pin_mismatch">PINs did not match. Try again.</string>
+    <string name="pattern_mismatch">Patterns did not match. Try again.</string>
+    <string name="pattern_too_short">Connect at least 4 dots.</string>
+    <string name="lock_saved">Lock updated</string>
 
+    <!-- Lock screen -->
     <string name="enter_pin_title">Enter PIN</string>
+    <string name="enter_pattern_title">Draw pattern</string>
     <string name="wrong_pin">Wrong PIN</string>
+    <string name="wrong_credential">Incorrect — try again</string>
+    <string name="forgot_link">Forgot?</string>
 
+    <!-- Biometric -->
     <string name="use_fingerprint">Use fingerprint</string>
     <string name="use_pin">Use PIN</string>
     <string name="biometric_prompt_title">Unlock</string>
     <string name="biometric_prompt_subtitle">Use your fingerprint or face to unlock</string>
     <string name="biometric_unlock">Fingerprint unlock</string>
-    <string name="biometric_unlock_desc">Allow quick unlock with your fingerprint or face. Your PIN still works as a backup.</string>
+    <string name="biometric_unlock_desc">Quick unlock with your fingerprint or face. Your PIN/pattern still works.</string>
 
-    <string name="protection">Protection</string>
+    <!-- Welcome / onboarding -->
+    <string name="welcome_title">Welcome to LockApp</string>
+    <string name="welcome_subtitle">Lock any app with a PIN, pattern, or fingerprint.</string>
+    <string name="welcome_point_lock">Lock any app you choose</string>
+    <string name="welcome_point_biometric">Quick unlock with fingerprint or face</string>
+    <string name="welcome_point_private">Everything stays on your device</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Recovery -->
+    <string name="recovery_title">Recovery question</string>
+    <string name="recovery_subtitle">If you forget your lock, answer this to reset it.</string>
+    <string name="recovery_question_hint">Security question</string>
+    <string name="recovery_answer_hint">Your answer</string>
+    <string name="recovery_question_title">Recovery question</string>
+    <string name="recovery_saved">Recovery question saved</string>
+    <string name="recovery_answer_required">Enter an answer</string>
+    <string name="recovery_question_required">Choose a question</string>
+    <string name="recovery_not_set">Not set — tap to add</string>
+    <string name="recovery_wrong">Incorrect answer</string>
+    <string name="no_recovery">No recovery question was set.</string>
+    <string name="forgot_title">Answer to reset your lock</string>
+    <string name="verify">Verify</string>
+    <string name="save">Save</string>
+    <string name="skip">Skip for now</string>
+
+    <!-- Home -->
     <string name="protection_on">Protection is on</string>
     <string name="protection_off">Protection is off</string>
-
     <string name="perm_usage">Grant "Usage access"</string>
     <string name="perm_overlay">Allow "Display over other apps"</string>
     <string name="perm_notifications">Allow notifications</string>
-    <string name="permissions_needed">Permissions needed</string>
-    <string name="all_permissions_granted">All permissions granted</string>
-
-    <string name="locked_apps_header">Choose apps to lock</string>
-    <string name="loading_apps">Loading apps…</string>
-
-    <string name="notif_channel_name">App lock protection</string>
-    <string name="notif_title">AppLock is protecting your apps</string>
-    <string name="notif_text">Locked apps will ask for your PIN.</string>
-
+    <string name="permissions_needed">Grant the required permissions first</string>
+    <string name="search_apps">Search apps</string>
     <string name="delete">Delete</string>
 
-    <string name="tamper_title">Tamper protection</string>
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="section_security">Security</string>
+    <string name="section_tamper">Anti-tamper</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="section_about">About</string>
+    <string name="change_lock">Change PIN or pattern</string>
+    <string name="autolock_title">Auto-lock timing</string>
+    <string name="theme_title">Theme</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_url">https://amerganim.github.io/AppLock/privacy.html</string>
+    <string name="version">Version</string>
+
+    <!-- Tamper -->
     <string name="tamper_switch">Block uninstall &amp; lock Settings</string>
-    <string name="tamper_desc">Locks the Settings app and registers a device administrator so AppLock can\'t be easily uninstalled. You\'ll need your PIN to open Settings.</string>
+    <string name="tamper_desc">Locks the Settings app and registers a device administrator so LockApp can\'t be easily uninstalled. You\'ll need your lock to open Settings.</string>
     <string name="admin_active">Uninstall is blocked (device admin active).</string>
     <string name="admin_inactive">Device admin not active — uninstall is not blocked.</string>
-    <string name="admin_description">Lets AppLock resist being uninstalled until you turn off tamper protection with your PIN.</string>
-    <string name="admin_explanation">Activate so AppLock cannot be uninstalled without your PIN. To remove AppLock later, turn off Tamper protection inside the app first.</string>
-    <string name="admin_disable_warning">Turn off Tamper protection inside AppLock (with your PIN) instead. Disabling here allows AppLock to be uninstalled.</string>
+    <string name="admin_description">Lets LockApp resist being uninstalled until you turn off tamper protection with your lock.</string>
+    <string name="admin_explanation">Activate so LockApp cannot be uninstalled without your lock. To remove LockApp later, turn off Tamper protection inside the app first.</string>
+    <string name="admin_disable_warning">Turn off Tamper protection inside LockApp (with your lock) instead. Disabling here allows LockApp to be uninstalled.</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">App lock protection</string>
+    <string name="notif_title">LockApp is protecting your apps</string>
+    <string name="notif_text">Locked apps will ask for your PIN or pattern.</string>
+
+    <string-array name="security_questions">
+        <item>What was the name of your first pet?</item>
+        <item>What is your mother\'s maiden name?</item>
+        <item>What city were you born in?</item>
+        <item>What was the name of your first school?</item>
+        <item>What is your favorite movie?</item>
+        <item>What was your childhood nickname?</item>
+    </string-array>
+
+    <string-array name="autolock_labels">
+        <item>Immediately</item>
+        <item>After 10 seconds</item>
+        <item>After 30 seconds</item>
+        <item>After 1 minute</item>
+    </string-array>
+
+    <string-array name="theme_labels">
+        <item>System default</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
 </resources>

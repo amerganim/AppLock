@@ -1,7 +1,5 @@
 package com.amerganim.lockapp
 
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -11,9 +9,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amerganim.lockapp.databinding.ActivityMainBinding
@@ -22,31 +19,26 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Home screen. PIN-gated. Lets the user grant the required permissions, turn
- * protection on/off, and pick which apps to lock.
+ * Home screen, gated behind the user's lock. Grant permissions, turn protection
+ * on/off, search and pick which apps to lock. Everything else lives in Settings.
  */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var pinManager: PinManager
+    private lateinit var credential: CredentialManager
     private lateinit var prefs: LockPrefs
-    private lateinit var dpm: DevicePolicyManager
-    private lateinit var adminComponent: ComponentName
 
     /** True while we are the ones launching the lock screen (so onStop must not
      *  reset the authenticated flag). */
     private var launchingLock = false
     private var appsLoaded = false
 
+    private var allApps: List<AppEntry> = emptyList()
+    private var adapter: AppListAdapter? = null
+
     private val notifPermLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             refreshPermissionUi()
-        }
-
-    private val adminEnableLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            // Regardless of the result, re-sync the tamper UI to reflect reality.
-            syncTamperUi()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,12 +46,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        pinManager = PinManager(this)
+        credential = CredentialManager(this)
         prefs = LockPrefs(this)
-        dpm = getSystemService(DevicePolicyManager::class.java)
-        adminComponent = AdminReceiver.component(this)
 
         binding.appsList.layoutManager = LinearLayoutManager(this)
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            if (item.itemId == R.id.action_settings) {
+                startActivity(Intent(this, SettingsActivity::class.java)); true
+            } else false
+        }
 
         binding.permUsage.setOnClickListener {
             allowSettingsTemporarily()
@@ -68,10 +63,7 @@ class MainActivity : AppCompatActivity() {
         binding.permOverlay.setOnClickListener {
             allowSettingsTemporarily()
             startActivity(
-                Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                )
+                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
             )
         }
         binding.permNotifications.setOnClickListener {
@@ -85,28 +77,21 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.protectionSwitch.setOnCheckedChangeListener { _, checked ->
-            onProtectionToggled(checked)
-        }
-        binding.tamperSwitch.setOnCheckedChangeListener { _, checked ->
-            onTamperToggled(checked)
-        }
-        binding.biometricSwitch.setOnCheckedChangeListener { _, checked ->
-            prefs.biometricEnabled = checked
-        }
+        binding.protectionSwitch.setOnCheckedChangeListener { _, checked -> onProtectionToggled(checked) }
+        binding.searchInput.doAfterTextChanged { applyFilter(it?.toString().orEmpty()) }
     }
 
     override fun onResume() {
         super.onResume()
 
-        if (!pinManager.isPinSet()) {
-            startActivity(Intent(this, SetPinActivity::class.java))
+        if (!credential.isCredentialSet()) {
+            startActivity(Intent(this, WelcomeActivity::class.java))
             finish()
             return
         }
 
         if (!LockState.settingsAuthed) {
-            // Require the PIN before revealing settings.
+            // Require the lock before revealing the app.
             binding.content.visibility = View.INVISIBLE
             launchingLock = true
             startActivity(
@@ -119,21 +104,13 @@ class MainActivity : AppCompatActivity() {
         binding.content.visibility = View.VISIBLE
         refreshPermissionUi()
         syncProtectionSwitch()
-        syncTamperUi()
-        syncBiometricUi()
         ensureServiceRunning()
         if (!appsLoaded) loadApps()
     }
 
     override fun onStop() {
         super.onStop()
-        if (launchingLock) {
-            // We popped the lock screen ourselves; keep the session.
-            launchingLock = false
-        } else {
-            // Genuinely backgrounded — require the PIN again next time.
-            LockState.settingsAuthed = false
-        }
+        if (launchingLock) launchingLock = false else LockState.settingsAuthed = false
     }
 
     private fun onProtectionToggled(enable: Boolean) {
@@ -157,81 +134,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun syncProtectionSwitch() {
-        val on = prefs.protectionEnabled
-        binding.protectionSwitch.setOnCheckedChangeListener(null)
-        binding.protectionSwitch.isChecked = on
-        binding.protectionSwitch.setOnCheckedChangeListener { _, checked ->
-            onProtectionToggled(checked)
-        }
-        updateProtectionLabel(on)
-    }
-
-    private fun updateProtectionLabel(on: Boolean) {
-        binding.protectionStatus.setText(
-            if (on) R.string.protection_on else R.string.protection_off
-        )
-    }
-
     private fun ensureServiceRunning() {
-        val needed = prefs.protectionEnabled || prefs.antiUninstallEnabled
-        if (needed && Permissions.hasRequired(this)) {
+        if ((prefs.protectionEnabled || prefs.antiUninstallEnabled) && Permissions.hasRequired(this)) {
             AppLockService.start(this)
         }
     }
 
-    private fun onTamperToggled(enable: Boolean) {
-        prefs.antiUninstallEnabled = enable
-        // Anti-uninstall locking only bites while the monitor runs.
-        applyServiceState()
-        if (enable) {
-            if (!dpm.isAdminActive(adminComponent)) {
-                // Don't let the freshly-locked Settings block the admin consent screen.
-                allowSettingsTemporarily()
-                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
-                    .putExtra(
-                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                        getString(R.string.admin_explanation)
-                    )
-                adminEnableLauncher.launch(intent)
-            }
-        } else {
-            if (dpm.isAdminActive(adminComponent)) {
-                dpm.removeActiveAdmin(adminComponent)
-            }
-        }
-        syncTamperUi()
+    private fun syncProtectionSwitch() {
+        val on = prefs.protectionEnabled
+        binding.protectionSwitch.setOnCheckedChangeListener(null)
+        binding.protectionSwitch.isChecked = on
+        binding.protectionSwitch.setOnCheckedChangeListener { _, checked -> onProtectionToggled(checked) }
+        updateProtectionLabel(on)
     }
 
-    private fun syncTamperUi() {
-        val on = prefs.antiUninstallEnabled
-        binding.tamperSwitch.setOnCheckedChangeListener(null)
-        binding.tamperSwitch.isChecked = on
-        binding.tamperSwitch.setOnCheckedChangeListener { _, checked ->
-            onTamperToggled(checked)
-        }
-        val adminActive = dpm.isAdminActive(adminComponent)
-        binding.adminStatus.setText(
-            if (adminActive) R.string.admin_active else R.string.admin_inactive
-        )
-    }
-
-    private fun syncBiometricUi() {
-        // Only offer the toggle when the device actually has usable biometric hardware.
-        val status = BiometricManager.from(this).canAuthenticate(BIOMETRIC_WEAK)
-        val hasHardware = status != BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE &&
-            status != BiometricManager.BIOMETRIC_STATUS_UNKNOWN
-        binding.biometricRow.visibility = if (hasHardware) View.VISIBLE else View.GONE
-        binding.biometricSwitch.setOnCheckedChangeListener(null)
-        binding.biometricSwitch.isChecked = prefs.biometricEnabled
-        binding.biometricSwitch.setOnCheckedChangeListener { _, checked ->
-            prefs.biometricEnabled = checked
-        }
+    private fun updateProtectionLabel(on: Boolean) {
+        binding.protectionStatus.setText(if (on) R.string.protection_on else R.string.protection_off)
     }
 
     /** Briefly mark the system Settings/installer screens as unlocked so our own
-     *  permission and device-admin flows aren't interrupted by the PIN prompt. */
+     *  permission flows aren't interrupted by the PIN prompt. */
     private fun allowSettingsTemporarily() {
         LockPrefs.PROTECTED_SYSTEM_PACKAGES.forEach { LockState.markUnlocked(it) }
     }
@@ -248,15 +170,24 @@ class MainActivity : AppCompatActivity() {
     private fun loadApps() {
         binding.progress.visibility = View.VISIBLE
         lifecycleScope.launch {
-            val entries = withContext(Dispatchers.IO) { queryLaunchableApps() }
+            allApps = withContext(Dispatchers.IO) { queryLaunchableApps() }
             appsLoaded = true
             binding.progress.visibility = View.GONE
-            binding.appsList.adapter = AppListAdapter(
-                items = entries,
+            adapter = AppListAdapter(
+                items = allApps.toMutableList(),
                 isLocked = { prefs.isLocked(it) },
                 onToggle = { pkg, locked -> prefs.setLocked(pkg, locked) }
             )
+            binding.appsList.adapter = adapter
+            applyFilter(binding.searchInput.text?.toString().orEmpty())
         }
+    }
+
+    private fun applyFilter(query: String) {
+        val q = query.trim().lowercase()
+        val filtered = if (q.isEmpty()) allApps
+        else allApps.filter { it.label.lowercase().contains(q) }
+        adapter?.submit(filtered)
     }
 
     private fun queryLaunchableApps(): List<AppEntry> {

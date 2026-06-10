@@ -6,7 +6,7 @@ import com.amerganim.lockapp.databinding.ViewPinDotsBinding
 
 /**
  * Drives a shared PIN entry: wires the numeric keypad and renders the dot
- * indicators. Reused by both [SetPinActivity] and [LockScreenActivity].
+ * indicators. Reused by both [SetupLockActivity] and [LockScreenActivity].
  */
 class PinPad(
     private val keypad: LayoutKeypadBinding,
@@ -29,10 +29,10 @@ class PinPad(
     }
 
     private fun append(c: Char) {
-        if (entry.length >= PinManager.PIN_LENGTH) return
+        if (entry.length >= CredentialManager.PIN_LENGTH) return
         entry.append(c)
         render()
-        if (entry.length == PinManager.PIN_LENGTH) {
+        if (entry.length == CredentialManager.PIN_LENGTH) {
             val value = entry.toString()
             onComplete(value)
         }

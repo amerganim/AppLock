@@ -11,7 +11,7 @@
     <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="0.8" />
 
     <ImageView
         android:id="@+id/appIcon"
@@ -45,7 +45,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp" />
 
+    <!-- Pattern entry (shown instead of the keypad when the lock type is Pattern) -->
+    <com.amerganim.lockapp.PatternLockView
+        android:id="@+id/patternView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginVertical="16dp"
+        android:visibility="gone" />
+
     <Space
+        android:id="@+id/keypadSpacer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -62,10 +72,19 @@
         style="@style/Widget.Material3.Button.TextButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:text="@string/use_fingerprint"
         android:textColor="@color/white"
         android:visibility="gone"
         app:icon="@drawable/ic_fingerprint"
         app:iconTint="@color/white" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/forgotButton"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/forgot_link"
+        android:textColor="#90CAF9"
+        android:visibility="gone" />
 </LinearLayout>

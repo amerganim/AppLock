@@ -19,6 +19,7 @@
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
+        android:name=".LockApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -37,7 +38,24 @@
         </activity>
 
         <activity
-            android:name=".SetPinActivity"
+            android:name=".WelcomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SetupLockActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SetupRecoveryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RecoveryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.LockApp.Lock" />
+
+        <activity
+            android:name=".SettingsActivity"
             android:exported="false" />
 
         <activity

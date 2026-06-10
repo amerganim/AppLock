@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/settings_title"
+        app:titleTextColor="@color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <TextView style="@style/SettingsHeader" android:text="@string/section_security" />
+
+            <LinearLayout android:id="@+id/rowChangeLock" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/change_lock" />
+                    <TextView android:id="@+id/lockTypeSubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowRecovery" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/recovery_question_title" />
+                    <TextView android:id="@+id/recoverySubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowAutolock" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/autolock_title" />
+                    <TextView android:id="@+id/autolockSubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/biometricRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/biometric_unlock" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/biometric_unlock_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/biometricSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView style="@style/SettingsHeader" android:text="@string/section_tamper" />
+
+            <LinearLayout android:id="@+id/tamperRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/tamper_switch" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/tamper_desc" />
+                    <TextView android:id="@+id/adminStatus" style="@style/SettingsRowSubtitle"
+                        android:textStyle="italic" android:text="@string/admin_inactive" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/tamperSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView style="@style/SettingsHeader" android:text="@string/section_appearance" />
+
+            <LinearLayout android:id="@+id/rowTheme" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/theme_title" />
+                    <TextView android:id="@+id/themeSubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView style="@style/SettingsHeader" android:text="@string/section_about" />
+
+            <LinearLayout android:id="@+id/rowPrivacy" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/privacy_policy" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/version" />
+                    <TextView android:id="@+id/versionSubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

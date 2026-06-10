@@ -32,7 +32,6 @@ class AppLockService : Service() {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var prefs: LockPrefs
 
-    private var lastForeground: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -57,14 +56,11 @@ class AppLockService : Service() {
     private fun tick() {
         val current = foregroundPackage() ?: return
 
+        // Keep the current app's unlock fresh and re-lock apps left longer than the delay.
+        LockState.onTick(current, prefs.relockDelayMs)
+
         // Ignore our own UI (settings + the lock screen itself run in our package).
         if (current == packageName) return
-
-        if (current != lastForeground) {
-            // Switched apps: anything previously unlocked (and now left) re-locks.
-            LockState.relockAllExcept(current)
-            lastForeground = current
-        }
 
         if (LockState.lockScreenActive) return
 
