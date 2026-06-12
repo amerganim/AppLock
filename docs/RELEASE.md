@@ -73,12 +73,15 @@ git push origin v1.0.0
 
 ## Privacy policy hosting (GitHub Pages)
 
-1. Repo → **Settings → Pages**.
-2. **Build and deployment → Source:** *Deploy from a branch*.
-3. **Branch:** `main`, **folder:** `/docs`. Save.
-4. After a minute the policy is live at:
-   `https://amerganim.github.io/AppLock/privacy.html`
-   (already wired into the app's Settings → Privacy policy).
+The policy is hosted via GitHub Pages from a dedicated public repo,
+[amerganim/applock-privacy-policy](https://github.com/amerganim/applock-privacy-policy)
+(Pages → branch `main`, folder `/`). It is already live and wired into the app
+(Settings → Privacy policy) and the Play listing:
+
+`https://amerganim.github.io/applock-privacy-policy/privacy.html`
+
+When the policy changes, update `privacy.html` in that repo (keep `docs/privacy.html`
+here as the source of truth and copy it over).
 
 ## Play Console assets
 - Screenshots: `docs/screenshots/` (welcome, PIN setup, pattern setup, home, settings).

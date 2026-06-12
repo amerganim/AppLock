@@ -86,7 +86,7 @@
     <string name="autolock_title">Auto-lock timing</string>
     <string name="theme_title">Theme</string>
     <string name="privacy_policy">Privacy policy</string>
-    <string name="privacy_policy_url">https://amerganim.github.io/AppLock/privacy.html</string>
+    <string name="privacy_policy_url">https://amerganim.github.io/applock-privacy-policy/privacy.html</string>
     <string name="version">Version</string>
 
     <!-- Tamper -->

@@ -49,8 +49,9 @@ shares any personal data. See our privacy policy for details.
 pattern lock, gallery lock, privacy, PIN lock.
 
 ### Privacy policy URL
-`https://amerganim.github.io/AppLock/privacy.html`
-(Enable GitHub Pages on this repo from the `/docs` folder to publish it.)
+`https://amerganim.github.io/applock-privacy-policy/privacy.html`
+(Hosted via GitHub Pages from the separate public repo
+[amerganim/applock-privacy-policy](https://github.com/amerganim/applock-privacy-policy) — already live.)
 
 ---
 
