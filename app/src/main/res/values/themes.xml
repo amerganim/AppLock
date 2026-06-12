@@ -3,7 +3,11 @@
     <style name="Theme.LockApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorAccent">@color/accent</item>
+        <!-- Reserve space for the status/navigation bars instead of drawing behind them
+             (opt out of the targetSdk 35 edge-to-edge enforcement). -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
     </style>
 
     <!-- Full-screen, dark theme used for the lock screen shown over other apps. -->
@@ -17,7 +21,8 @@
     <!-- Launch (splash) theme. installSplashScreen() swaps to Theme.LockApp after launch. -->
     <style name="Theme.LockApp.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/primary</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_lock</item>
+        <!-- Padded (centered) icon so the system doesn't render it edge-to-edge. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="postSplashScreenTheme">@style/Theme.LockApp</item>
     </style>
 

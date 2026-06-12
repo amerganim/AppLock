@@ -89,7 +89,10 @@ class SetupLockActivity : AppCompatActivity() {
     private fun onSaved() {
         LockState.settingsAuthed = true
         if (onboarding) {
-            startActivity(Intent(this, SetupRecoveryActivity::class.java))
+            startActivity(
+                Intent(this, SetupRecoveryActivity::class.java)
+                    .putExtra(SetupRecoveryActivity.EXTRA_ONBOARDING, true)
+            )
         } else {
             Toast.makeText(this, R.string.lock_saved, Toast.LENGTH_SHORT).show()
         }
