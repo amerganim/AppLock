@@ -96,6 +96,13 @@
     <string name="intruder_clear_confirm">Delete all intruder photos?</string>
     <string name="autolock_title">Auto-lock timing</string>
     <string name="theme_title">Theme</string>
+    <string name="disguise_title">Disguise app</string>
+    <string name="disguise_desc">Change the launcher icon and name to hide LockApp.</string>
+    <string name="disguise_default">LockApp (default)</string>
+    <string name="disguise_calculator">Calculator</string>
+    <string name="disguise_clock">Clock</string>
+    <string name="disguise_notes">Notes</string>
+    <string name="disguise_applied">Disguise applied. The new icon may take a moment to appear on the home screen.</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="privacy_policy_url">https://amerganim.github.io/applock-privacy-policy/privacy.html</string>
     <string name="version">Version</string>

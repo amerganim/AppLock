@@ -58,6 +58,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         binding.rowAutolock.setOnClickListener { showAutolockDialog() }
         binding.rowTheme.setOnClickListener { showThemeDialog() }
+        binding.rowDisguise.setOnClickListener { showDisguiseDialog() }
         binding.rowPrivacy.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))))
         }
@@ -103,6 +104,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.intruderPhotosSubtitle.text =
             getString(R.string.intruder_photos_count, IntruderManager.list(this).size)
         binding.vaultSubtitle.text = getString(R.string.vault_count, VaultManager.count(this))
+        binding.disguiseSubtitle.text = getString(DisguiseManager.current(this).labelRes)
         syncBiometric()
         syncTamper()
     }
@@ -130,6 +132,23 @@ class SettingsActivity : AppCompatActivity() {
                 prefs.themeMode = themeValues[which]
                 AppCompatDelegate.setDefaultNightMode(themeValues[which])
                 dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showDisguiseDialog() {
+        val labels = DisguiseManager.options.map { getString(it.labelRes) }.toTypedArray()
+        val checked = DisguiseManager.options.indexOfFirst {
+            it.alias == DisguiseManager.current(this).alias
+        }.coerceAtLeast(0)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.disguise_title)
+            .setSingleChoiceItems(labels, checked) { dialog, which ->
+                DisguiseManager.apply(this, DisguiseManager.options[which].alias)
+                binding.disguiseSubtitle.text = labels[which]
+                dialog.dismiss()
+                android.widget.Toast.makeText(this, R.string.disguise_applied, android.widget.Toast.LENGTH_LONG).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

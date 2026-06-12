@@ -59,6 +59,11 @@ class LockPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_INTRUDER, false)
         set(value) = prefs.edit().putBoolean(KEY_INTRUDER, value).apply()
 
+    /** Which launcher alias (icon/label disguise) is active. */
+    var disguiseAlias: String
+        get() = prefs.getString(KEY_DISGUISE, "LauncherDefault") ?: "LauncherDefault"
+        set(value) = prefs.edit().putString(KEY_DISGUISE, value).apply()
+
     companion object {
         private const val KEY_LOCKED = "locked_apps"
         private const val KEY_ENABLED = "protection_enabled"
@@ -69,6 +74,7 @@ class LockPrefs(context: Context) {
         private const val KEY_SCRAMBLE = "scramble_keypad"
         private const val KEY_AUTOLOCK_NEW = "autolock_new_apps"
         private const val KEY_INTRUDER = "intruder_selfie"
+        private const val KEY_DISGUISE = "disguise_alias"
 
         /** Wrong attempts before an intruder selfie is captured. */
         const val INTRUDER_THRESHOLD = 3

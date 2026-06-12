@@ -133,6 +133,14 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/rowDisguise" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/disguise_title" />
+                    <TextView android:id="@+id/disguiseSubtitle" style="@style/SettingsRowSubtitle"
+                        android:text="@string/disguise_desc" />
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView style="@style/SettingsHeader" android:text="@string/section_about" />
 
             <LinearLayout android:id="@+id/rowPrivacy" style="@style/SettingsRow">
