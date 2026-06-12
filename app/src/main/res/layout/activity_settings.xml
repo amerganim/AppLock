@@ -99,6 +99,16 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <TextView style="@style/SettingsHeader" android:text="@string/section_private" />
+
+            <LinearLayout android:id="@+id/vaultRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/vault_title" />
+                    <TextView android:id="@+id/vaultSubtitle" style="@style/SettingsRowSubtitle"
+                        android:text="@string/vault_desc" />
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView style="@style/SettingsHeader" android:text="@string/section_tamper" />
 
             <LinearLayout android:id="@+id/tamperRow" style="@style/SettingsRow">

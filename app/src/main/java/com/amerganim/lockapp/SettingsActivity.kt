@@ -75,6 +75,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.intruderPhotosRow.setOnClickListener {
             startActivity(Intent(this, IntrudersActivity::class.java))
         }
+        binding.vaultRow.setOnClickListener {
+            startActivity(Intent(this, VaultActivity::class.java))
+        }
         binding.tamperSwitch.setOnCheckedChangeListener { _, checked -> onTamperToggled(checked) }
 
         binding.versionSubtitle.text = runCatching {
@@ -99,6 +102,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.intruderSwitch.setOnCheckedChangeListener { _, checked -> onIntruderToggled(checked) }
         binding.intruderPhotosSubtitle.text =
             getString(R.string.intruder_photos_count, IntruderManager.list(this).size)
+        binding.vaultSubtitle.text = getString(R.string.vault_count, VaultManager.count(this))
         syncBiometric()
         syncTamper()
     }

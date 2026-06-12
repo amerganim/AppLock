@@ -67,6 +67,25 @@
             android:exported="false" />
 
         <activity
+            android:name=".VaultActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".VaultViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.LockApp.Lock" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
             android:name=".LockScreenActivity"
             android:exported="false"
             android:excludeFromRecents="true"
