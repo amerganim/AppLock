@@ -76,6 +76,7 @@ pattern lock, gallery lock, privacy, PIN lock.
 - [ ] Screenshots (phone) + 512×512 icon + 1024×500 feature graphic.
 - [ ] Target audience & content (not directed at children).
 
-## Assets still to produce
-- Phone screenshots of: onboarding, lock screen (PIN + pattern), app list, settings.
-- Feature graphic (1024×500).
+## Assets
+- Phone screenshots: `docs/screenshots/` (welcome, PIN setup, pattern setup, home, settings).
+- Feature graphic (1024×500): `docs/feature-graphic.png`.
+- Store icon (512×512): `docs/play-icon-512.png`.
