@@ -70,6 +70,11 @@
     <string name="section_security">Security</string>
     <string name="section_tamper">Anti-tamper</string>
     <string name="section_appearance">Appearance</string>
+    <string name="section_schedule">Schedule</string>
+    <string name="schedule_title">Pause locking on schedule</string>
+    <string name="schedule_desc">Apps won\'t be locked during the window below.</string>
+    <string name="schedule_window_title">Pause window</string>
+    <string name="schedule_window_value">%1$s – %2$s</string>
     <string name="section_about">About</string>
     <string name="section_private">Private</string>
     <string name="vault_title">Photo &amp; video vault</string>

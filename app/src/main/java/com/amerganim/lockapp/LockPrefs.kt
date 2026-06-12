@@ -64,6 +64,30 @@ class LockPrefs(context: Context) {
         get() = prefs.getString(KEY_DISGUISE, "LauncherDefault") ?: "LauncherDefault"
         set(value) = prefs.edit().putString(KEY_DISGUISE, value).apply()
 
+    /** Pause app locking during a daily time window (e.g. when you're at home). */
+    var scheduleEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SCHED_ON, false)
+        set(value) = prefs.edit().putBoolean(KEY_SCHED_ON, value).apply()
+
+    /** Window start/end as minutes since midnight. */
+    var scheduleStartMinutes: Int
+        get() = prefs.getInt(KEY_SCHED_START, 22 * 60)
+        set(value) = prefs.edit().putInt(KEY_SCHED_START, value).apply()
+
+    var scheduleEndMinutes: Int
+        get() = prefs.getInt(KEY_SCHED_END, 6 * 60)
+        set(value) = prefs.edit().putInt(KEY_SCHED_END, value).apply()
+
+    /** True if locking is currently paused by the schedule (handles overnight windows). */
+    fun isLockingPausedNow(): Boolean {
+        if (!scheduleEnabled) return false
+        val cal = java.util.Calendar.getInstance()
+        val now = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+        val start = scheduleStartMinutes
+        val end = scheduleEndMinutes
+        return if (start <= end) now in start until end else now >= start || now < end
+    }
+
     companion object {
         private const val KEY_LOCKED = "locked_apps"
         private const val KEY_ENABLED = "protection_enabled"
@@ -75,6 +99,9 @@ class LockPrefs(context: Context) {
         private const val KEY_AUTOLOCK_NEW = "autolock_new_apps"
         private const val KEY_INTRUDER = "intruder_selfie"
         private const val KEY_DISGUISE = "disguise_alias"
+        private const val KEY_SCHED_ON = "schedule_enabled"
+        private const val KEY_SCHED_START = "schedule_start_min"
+        private const val KEY_SCHED_END = "schedule_end_min"
 
         /** Wrong attempts before an intruder selfie is captured. */
         const val INTRUDER_THRESHOLD = 3

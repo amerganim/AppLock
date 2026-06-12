@@ -59,6 +59,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.rowAutolock.setOnClickListener { showAutolockDialog() }
         binding.rowTheme.setOnClickListener { showThemeDialog() }
         binding.rowDisguise.setOnClickListener { showDisguiseDialog() }
+        binding.scheduleSwitch.setOnCheckedChangeListener { _, checked -> prefs.scheduleEnabled = checked }
+        binding.scheduleWindowRow.setOnClickListener { pickScheduleWindow() }
         binding.rowPrivacy.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))))
         }
@@ -105,6 +107,12 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.intruder_photos_count, IntruderManager.list(this).size)
         binding.vaultSubtitle.text = getString(R.string.vault_count, VaultManager.count(this))
         binding.disguiseSubtitle.text = getString(DisguiseManager.current(this).labelRes)
+        binding.scheduleSwitch.isChecked = prefs.scheduleEnabled
+        binding.scheduleWindowSubtitle.text = getString(
+            R.string.schedule_window_value,
+            minutesToText(prefs.scheduleStartMinutes),
+            minutesToText(prefs.scheduleEndMinutes)
+        )
         syncBiometric()
         syncTamper()
     }
@@ -135,6 +143,26 @@ class SettingsActivity : AppCompatActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    private fun minutesToText(minutes: Int): String =
+        String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes / 60, minutes % 60)
+
+    private fun pickScheduleWindow() {
+        val is24h = android.text.format.DateFormat.is24HourFormat(this)
+        val start = prefs.scheduleStartMinutes
+        android.app.TimePickerDialog(this, { _, h, m ->
+            prefs.scheduleStartMinutes = h * 60 + m
+            val end = prefs.scheduleEndMinutes
+            android.app.TimePickerDialog(this, { _, h2, m2 ->
+                prefs.scheduleEndMinutes = h2 * 60 + m2
+                binding.scheduleWindowSubtitle.text = getString(
+                    R.string.schedule_window_value,
+                    minutesToText(prefs.scheduleStartMinutes),
+                    minutesToText(prefs.scheduleEndMinutes)
+                )
+            }, end / 60, end % 60, is24h).show()
+        }, start / 60, start % 60, is24h).show()
     }
 
     private fun showDisguiseDialog() {

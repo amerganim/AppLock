@@ -124,6 +124,26 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <TextView style="@style/SettingsHeader" android:text="@string/section_schedule" />
+
+            <LinearLayout android:id="@+id/scheduleRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/schedule_title" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/schedule_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/scheduleSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/scheduleWindowRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/schedule_window_title" />
+                    <TextView android:id="@+id/scheduleWindowSubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView style="@style/SettingsHeader" android:text="@string/section_appearance" />
 
             <LinearLayout android:id="@+id/rowTheme" style="@style/SettingsRow">
