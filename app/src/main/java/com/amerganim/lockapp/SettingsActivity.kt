@@ -61,6 +61,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.rowDisguise.setOnClickListener { showDisguiseDialog() }
         binding.scheduleSwitch.setOnCheckedChangeListener { _, checked -> prefs.scheduleEnabled = checked }
         binding.scheduleWindowRow.setOnClickListener { pickScheduleWindow() }
+        binding.fakeCoverSwitch.setOnCheckedChangeListener { _, checked -> prefs.fakeCoverEnabled = checked }
         binding.rowPrivacy.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))))
         }
@@ -107,6 +108,7 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.intruder_photos_count, IntruderManager.list(this).size)
         binding.vaultSubtitle.text = getString(R.string.vault_count, VaultManager.count(this))
         binding.disguiseSubtitle.text = getString(DisguiseManager.current(this).labelRes)
+        binding.fakeCoverSwitch.isChecked = prefs.fakeCoverEnabled
         binding.scheduleSwitch.isChecked = prefs.scheduleEnabled
         binding.scheduleWindowSubtitle.text = getString(
             R.string.schedule_window_value,

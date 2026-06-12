@@ -59,6 +59,11 @@ class LockPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_INTRUDER, false)
         set(value) = prefs.edit().putBoolean(KEY_INTRUDER, value).apply()
 
+    /** Show a fake "app keeps stopping" screen over the lock; long-press reveals it. */
+    var fakeCoverEnabled: Boolean
+        get() = prefs.getBoolean(KEY_FAKE_COVER, false)
+        set(value) = prefs.edit().putBoolean(KEY_FAKE_COVER, value).apply()
+
     /** Which launcher alias (icon/label disguise) is active. */
     var disguiseAlias: String
         get() = prefs.getString(KEY_DISGUISE, "LauncherDefault") ?: "LauncherDefault"
@@ -99,6 +104,7 @@ class LockPrefs(context: Context) {
         private const val KEY_AUTOLOCK_NEW = "autolock_new_apps"
         private const val KEY_INTRUDER = "intruder_selfie"
         private const val KEY_DISGUISE = "disguise_alias"
+        private const val KEY_FAKE_COVER = "fake_cover"
         private const val KEY_SCHED_ON = "schedule_enabled"
         private const val KEY_SCHED_START = "schedule_start_min"
         private const val KEY_SCHED_END = "schedule_end_min"

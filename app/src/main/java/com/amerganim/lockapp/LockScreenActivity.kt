@@ -54,10 +54,14 @@ class LockScreenActivity : AppCompatActivity() {
             startActivity(Intent(this, RecoveryActivity::class.java))
         }
 
+        val fakeCover = LockPrefs(this).fakeCoverEnabled
+        if (fakeCover) setupFakeCover()
+
         if (biometricAvailable()) {
             binding.fingerprintButton.visibility = View.VISIBLE
             binding.fingerprintButton.setOnClickListener { showBiometricPrompt() }
-            showBiometricPrompt()
+            // Don't pop the system prompt while the fake "crash" cover is up.
+            if (!fakeCover) showBiometricPrompt()
         }
 
         // Back must not reveal the protected app; leave to the home screen instead.
@@ -95,6 +99,27 @@ class LockScreenActivity : AppCompatActivity() {
             binding.patternView.clearPattern()
         }
     }
+
+    private fun setupFakeCover() {
+        binding.fakeCover.visibility = View.VISIBLE
+        binding.fakeTitle.text = getString(R.string.fake_message, coverAppLabel())
+        // The secret reveal gesture: long-press anywhere on the fake dialog.
+        binding.fakeCover.setOnLongClickListener {
+            binding.fakeCover.visibility = View.GONE
+            if (biometricAvailable()) showBiometricPrompt()
+            true
+        }
+        binding.fakeClose.setOnClickListener { goHome() }
+        binding.fakeInfo.setOnClickListener { goHome() }
+    }
+
+    private fun coverAppLabel(): String =
+        if (isSelf) {
+            getString(DisguiseManager.current(this).labelRes).substringBefore(" (")
+        } else {
+            binding.appName.text?.toString()?.takeIf { it.isNotEmpty() }
+                ?: getString(R.string.app_name)
+        }
 
     private fun biometricAvailable(): Boolean {
         if (!LockPrefs(this).biometricEnabled) return false

@@ -161,6 +161,17 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/fakeCoverRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/fake_cover_title" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/fake_cover_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fakeCoverSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
             <TextView style="@style/SettingsHeader" android:text="@string/section_about" />
 
             <LinearLayout android:id="@+id/rowPrivacy" style="@style/SettingsRow">

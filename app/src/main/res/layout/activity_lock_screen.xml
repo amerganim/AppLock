@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lock_bg"
@@ -87,4 +91,60 @@
         android:text="@string/forgot_link"
         android:textColor="#90CAF9"
         android:visibility="gone" />
-</LinearLayout>
+  </LinearLayout>
+
+  <!-- Fake "app keeps stopping" cover. Long-press anywhere reveals the real lock. -->
+  <FrameLayout
+      android:id="@+id/fakeCover"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="#CC000000"
+      android:clickable="true"
+      android:focusable="true"
+      android:visibility="gone">
+
+      <com.google.android.material.card.MaterialCardView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginHorizontal="32dp"
+          app:cardCornerRadius="20dp">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="24dp">
+
+              <TextView
+                  android:id="@+id/fakeTitle"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:textColor="?android:attr/textColorPrimary"
+                  android:textSize="18sp" />
+
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="24dp"
+                  android:gravity="end"
+                  android:orientation="horizontal">
+
+                  <com.google.android.material.button.MaterialButton
+                      android:id="@+id/fakeInfo"
+                      style="@style/Widget.Material3.Button.TextButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/fake_app_info" />
+
+                  <com.google.android.material.button.MaterialButton
+                      android:id="@+id/fakeClose"
+                      style="@style/Widget.Material3.Button.TextButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/fake_close" />
+              </LinearLayout>
+          </LinearLayout>
+      </com.google.android.material.card.MaterialCardView>
+  </FrameLayout>
+</FrameLayout>
