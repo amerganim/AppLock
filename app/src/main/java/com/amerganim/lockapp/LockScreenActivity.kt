@@ -31,6 +31,8 @@ class LockScreenActivity : AppCompatActivity() {
 
     private var builtType: LockType? = null
     private var biometricPromptShowing = false
+    private var failCount = 0
+    private var selfieTaken = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +86,9 @@ class LockScreenActivity : AppCompatActivity() {
         binding.title.setText(if (pin) R.string.enter_pin_title else R.string.enter_pattern_title)
 
         if (pin) {
-            if (pinPad == null) pinPad = PinPad(binding.keypad, binding.dots) { verify(it) }
+            if (pinPad == null) {
+                pinPad = PinPad(binding.keypad, binding.dots, LockPrefs(this).scrambleKeypad) { verify(it) }
+            }
             pinPad?.reset()
         } else {
             binding.patternView.onPatternDetected = { indices -> verify(PatternLockView.encode(indices)) }
@@ -162,6 +166,19 @@ class LockScreenActivity : AppCompatActivity() {
         } else {
             binding.appName.setText(R.string.wrong_credential)
             if (builtType == LockType.PIN) pinPad?.reset() else binding.patternView.showError()
+            onWrongAttempt()
+        }
+    }
+
+    private fun onWrongAttempt() {
+        failCount++
+        if (!selfieTaken &&
+            failCount >= LockPrefs.INTRUDER_THRESHOLD &&
+            LockPrefs(this).intruderSelfieEnabled &&
+            IntruderManager.hasCameraPermission(this)
+        ) {
+            selfieTaken = true
+            IntruderManager.capture(this, targetPackage)
         }
     }
 

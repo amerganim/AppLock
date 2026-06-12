@@ -33,6 +33,12 @@ class SettingsActivity : AppCompatActivity() {
     private val adminEnableLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { syncTamper() }
 
+    private val cameraPermLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            prefs.intruderSelfieEnabled = granted
+            binding.intruderSwitch.isChecked = granted
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -59,6 +65,16 @@ class SettingsActivity : AppCompatActivity() {
         binding.biometricSwitch.setOnCheckedChangeListener { _, checked ->
             prefs.biometricEnabled = checked
         }
+        binding.scrambleSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.scrambleKeypad = checked
+        }
+        binding.autolockNewSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.autoLockNewApps = checked
+        }
+        binding.intruderSwitch.setOnCheckedChangeListener { _, checked -> onIntruderToggled(checked) }
+        binding.intruderPhotosRow.setOnClickListener {
+            startActivity(Intent(this, IntrudersActivity::class.java))
+        }
         binding.tamperSwitch.setOnCheckedChangeListener { _, checked -> onTamperToggled(checked) }
 
         binding.versionSubtitle.text = runCatching {
@@ -75,6 +91,14 @@ class SettingsActivity : AppCompatActivity() {
             ?: getString(R.string.recovery_not_set)
         binding.autolockSubtitle.text = autolockLabel(prefs.relockDelayMs)
         binding.themeSubtitle.text = themeLabel(prefs.themeMode)
+        binding.scrambleSwitch.isChecked = prefs.scrambleKeypad
+        binding.autolockNewSwitch.isChecked = prefs.autoLockNewApps
+        binding.intruderSwitch.setOnCheckedChangeListener(null)
+        binding.intruderSwitch.isChecked =
+            prefs.intruderSelfieEnabled && IntruderManager.hasCameraPermission(this)
+        binding.intruderSwitch.setOnCheckedChangeListener { _, checked -> onIntruderToggled(checked) }
+        binding.intruderPhotosSubtitle.text =
+            getString(R.string.intruder_photos_count, IntruderManager.list(this).size)
         syncBiometric()
         syncTamper()
     }
@@ -127,6 +151,14 @@ class SettingsActivity : AppCompatActivity() {
         binding.biometricSwitch.setOnCheckedChangeListener(null)
         binding.biometricSwitch.isChecked = prefs.biometricEnabled
         binding.biometricSwitch.setOnCheckedChangeListener { _, checked -> prefs.biometricEnabled = checked }
+    }
+
+    private fun onIntruderToggled(enable: Boolean) {
+        if (enable && !IntruderManager.hasCameraPermission(this)) {
+            cameraPermLauncher.launch(android.Manifest.permission.CAMERA)
+            return
+        }
+        prefs.intruderSelfieEnabled = enable
     }
 
     private fun onTamperToggled(enable: Boolean) {

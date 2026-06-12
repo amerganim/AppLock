@@ -44,6 +44,21 @@ class LockPrefs(context: Context) {
         get() = prefs.getInt(KEY_THEME, MODE_FOLLOW_SYSTEM)
         set(value) = prefs.edit().putInt(KEY_THEME, value).apply()
 
+    /** Randomize the PIN keypad layout to resist shoulder-surfing. */
+    var scrambleKeypad: Boolean
+        get() = prefs.getBoolean(KEY_SCRAMBLE, false)
+        set(value) = prefs.edit().putBoolean(KEY_SCRAMBLE, value).apply()
+
+    /** Automatically lock any newly installed app. */
+    var autoLockNewApps: Boolean
+        get() = prefs.getBoolean(KEY_AUTOLOCK_NEW, false)
+        set(value) = prefs.edit().putBoolean(KEY_AUTOLOCK_NEW, value).apply()
+
+    /** Capture a front-camera photo after repeated wrong unlock attempts. */
+    var intruderSelfieEnabled: Boolean
+        get() = prefs.getBoolean(KEY_INTRUDER, false)
+        set(value) = prefs.edit().putBoolean(KEY_INTRUDER, value).apply()
+
     companion object {
         private const val KEY_LOCKED = "locked_apps"
         private const val KEY_ENABLED = "protection_enabled"
@@ -51,6 +66,12 @@ class LockPrefs(context: Context) {
         private const val KEY_BIOMETRIC = "biometric_enabled"
         private const val KEY_RELOCK_DELAY = "relock_delay_ms"
         private const val KEY_THEME = "theme_mode"
+        private const val KEY_SCRAMBLE = "scramble_keypad"
+        private const val KEY_AUTOLOCK_NEW = "autolock_new_apps"
+        private const val KEY_INTRUDER = "intruder_selfie"
+
+        /** Wrong attempts before an intruder selfie is captured. */
+        const val INTRUDER_THRESHOLD = 3
 
         const val MODE_FOLLOW_SYSTEM = -1
 

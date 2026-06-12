@@ -72,6 +72,17 @@
     <string name="section_appearance">Appearance</string>
     <string name="section_about">About</string>
     <string name="change_lock">Change PIN or pattern</string>
+    <string name="scramble_title">Scramble keypad</string>
+    <string name="scramble_desc">Randomize the number positions to prevent shoulder-surfing.</string>
+    <string name="autolock_new_title">Auto-lock new apps</string>
+    <string name="autolock_new_desc">Automatically lock apps as soon as they are installed.</string>
+    <string name="intruder_title">Intruder selfie</string>
+    <string name="intruder_desc">Take a front-camera photo after 3 wrong attempts.</string>
+    <string name="intruder_photos">Intruder photos</string>
+    <string name="intruder_photos_count">%1$d saved</string>
+    <string name="intruder_empty">No intruder photos yet.</string>
+    <string name="intruder_clear">Clear all</string>
+    <string name="intruder_clear_confirm">Delete all intruder photos?</string>
     <string name="autolock_title">Auto-lock timing</string>
     <string name="theme_title">Theme</string>
     <string name="privacy_policy">Privacy policy</string>
@@ -91,6 +102,10 @@
     <string name="notif_channel_name">App lock protection</string>
     <string name="notif_title">LockApp is protecting your apps</string>
     <string name="notif_text">Locked apps will ask for your PIN or pattern.</string>
+
+    <string name="autolock_channel_name">Auto-locked apps</string>
+    <string name="autolock_notif_title">App locked</string>
+    <string name="autolock_notif_text">%1$s was locked automatically.</string>
 
     <string-array name="security_questions">
         <item>What was the name of your first pet?</item>

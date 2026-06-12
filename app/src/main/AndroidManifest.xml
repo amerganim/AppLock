@@ -17,6 +17,10 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <!-- Optional: capture an "intruder selfie" after repeated failed unlock attempts. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
     <application
         android:name=".LockApp"
@@ -59,6 +63,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".IntrudersActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".LockScreenActivity"
             android:exported="false"
             android:excludeFromRecents="true"
@@ -81,6 +89,15 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".NewAppReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 

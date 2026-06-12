@@ -59,6 +59,46 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/scrambleRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/scramble_title" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/scramble_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/scrambleSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/autolockNewRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/autolock_new_title" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/autolock_new_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/autolockNewSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/intruderRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/intruder_title" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/intruder_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/intruderSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/intruderPhotosRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/intruder_photos" />
+                    <TextView android:id="@+id/intruderPhotosSubtitle" style="@style/SettingsRowSubtitle" />
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView style="@style/SettingsHeader" android:text="@string/section_tamper" />
 
             <LinearLayout android:id="@+id/tamperRow" style="@style/SettingsRow">
