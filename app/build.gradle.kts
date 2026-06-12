@@ -1,7 +1,22 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+// Release signing: read from keystore.properties (local) or env vars (CI).
+// If no key material is available, release builds stay unsigned so debug/CI still work.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) load(FileInputStream(keystorePropertiesFile))
+}
+fun signingValue(envName: String, propName: String): String? =
+    System.getenv(envName) ?: keystoreProperties.getProperty(propName)
+val releaseStorePath = signingValue("KEYSTORE_FILE", "storeFile")
+val releaseStoreFile = releaseStorePath?.let { rootProject.file(it) }
+val hasReleaseSigning = releaseStoreFile != null && releaseStoreFile.exists()
 
 android {
     namespace = "com.amerganim.lockapp"
@@ -16,6 +31,17 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = signingValue("KEYSTORE_PASSWORD", "storePassword")
+                keyAlias = signingValue("KEY_ALIAS", "keyAlias")
+                keyPassword = signingValue("KEY_PASSWORD", "keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -23,6 +49,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
         }
     }
 

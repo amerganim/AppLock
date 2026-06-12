@@ -58,9 +58,10 @@ pattern lock, gallery lock, privacy, PIN lock.
 
 - [x] Real `applicationId` (`com.amerganim.lockapp`) — `com.example.*` is blocked by Play
 - [x] `targetSdk` 35 (Play requirement for new apps)
-- [x] Privacy policy written (`docs/privacy.html`) — **host it and paste the URL in Play**
-- [ ] **Signed release build**: create an upload keystore and a `release` signing
-      config, then `./gradlew :app:bundleRelease` to produce the AAB.
+- [x] Privacy policy written (`docs/privacy.html`) — enable GitHub Pages to host it (see `RELEASE.md`)
+- [x] **Signed release build** — upload keystore + `release` signing config done;
+      `bundleRelease`/`assembleRelease` produce a signed AAB + APK. See `RELEASE.md`.
+- [x] **CI/CD** — GitHub Actions build + tagged-release workflows (`.github/workflows/`)
 - [ ] **Data safety form**: declare *no data collected, no data shared*.
 - [ ] **Permissions declarations** in Play Console:
   - `QUERY_ALL_PACKAGES` → justification: *core app-locker functionality requires

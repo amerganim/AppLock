@@ -22,6 +22,7 @@ captures/
 # Keystore files (don't commit signing secrets)
 *.jks
 *.keystore
+keystore.properties
 
 # Kotlin
 .kotlin/
