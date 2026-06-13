@@ -87,6 +87,10 @@
     <string name="vault_delete_confirm">Delete this item from the vault?</string>
     <string name="vault_exported">Exported to gallery</string>
     <string name="vault_export_failed">Export failed</string>
+    <string name="vault_remove_original">Remove original after import</string>
+    <string name="vault_originals_removed">Originals removed from gallery</string>
+    <string name="vault_remove_needs_perm">Media access is needed to remove originals</string>
+    <string name="vault_remove_unsupported">Removing originals needs Android 11 or newer</string>
     <string name="change_lock">Change PIN or pattern</string>
     <string name="scramble_title">Scramble keypad</string>
     <string name="scramble_desc">Randomize the number positions to prevent shoulder-surfing.</string>

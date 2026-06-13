@@ -68,6 +68,9 @@ pattern lock, gallery lock, privacy, PIN lock.
   - `QUERY_ALL_PACKAGES` → justification: *core app-locker functionality requires
     showing the user every launchable app so they can choose which to lock.*
   - Foreground service (`specialUse`) → describe the monitoring use.
+  - `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO` → only used (requested just-in-time) when
+    the user enables the vault's "Remove original after import" option, to delete the
+    gallery copies after moving them into the encrypted vault.
   - Prominent in-app disclosure for Usage Access is already shown during onboarding.
 - [ ] **Device admin**: tamper protection is **off by default and clearly disclosed**.
       If Play review flags "prevents uninstall," be ready to keep only the

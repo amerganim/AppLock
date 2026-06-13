@@ -19,6 +19,12 @@
         tools:ignore="QueryAllPackagesPermission" />
     <!-- Optional: capture an "intruder selfie" after repeated failed unlock attempts. -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Optional: only to delete originals after moving them into the vault. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 

@@ -59,6 +59,11 @@ class LockPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_INTRUDER, false)
         set(value) = prefs.edit().putBoolean(KEY_INTRUDER, value).apply()
 
+    /** After importing into the vault, offer to delete the originals from the gallery. */
+    var vaultRemoveOriginal: Boolean
+        get() = prefs.getBoolean(KEY_VAULT_RM_ORIG, false)
+        set(value) = prefs.edit().putBoolean(KEY_VAULT_RM_ORIG, value).apply()
+
     /** Show a fake "app keeps stopping" screen over the lock; long-press reveals it. */
     var fakeCoverEnabled: Boolean
         get() = prefs.getBoolean(KEY_FAKE_COVER, false)
@@ -105,6 +110,7 @@ class LockPrefs(context: Context) {
         private const val KEY_INTRUDER = "intruder_selfie"
         private const val KEY_DISGUISE = "disguise_alias"
         private const val KEY_FAKE_COVER = "fake_cover"
+        private const val KEY_VAULT_RM_ORIG = "vault_remove_original"
         private const val KEY_SCHED_ON = "schedule_enabled"
         private const val KEY_SCHED_START = "schedule_start_min"
         private const val KEY_SCHED_END = "schedule_end_min"

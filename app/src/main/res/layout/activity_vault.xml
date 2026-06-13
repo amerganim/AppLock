@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
+        app:menu="@menu/menu_vault"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:title="@string/vault_title"
         app:titleTextColor="@color/white" />
