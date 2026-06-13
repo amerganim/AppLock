@@ -89,8 +89,10 @@
     <string name="vault_export_failed">Export failed</string>
     <string name="vault_remove_original">Remove original after import</string>
     <string name="vault_originals_removed">Originals removed from gallery</string>
-    <string name="vault_remove_needs_perm">Media access is needed to remove originals</string>
-    <string name="vault_remove_unsupported">Removing originals needs Android 11 or newer</string>
+    <string name="vault_remove_none">Couldn\'t find the originals to remove</string>
+    <string name="vault_remove_unsupported">This needs Android 11 or newer. On older versions, photos are still added to the vault — just delete the originals from your gallery yourself.</string>
+    <string name="vault_remove_explain">When this is on, each time you add photos or videos to the vault, Android will ask you to confirm removing the originals from your gallery. An encrypted copy stays in the vault on this device.\n\nTurn this on?</string>
+    <string name="enable">Enable</string>
     <string name="change_lock">Change PIN or pattern</string>
     <string name="scramble_title">Scramble keypad</string>
     <string name="scramble_desc">Randomize the number positions to prevent shoulder-surfing.</string>

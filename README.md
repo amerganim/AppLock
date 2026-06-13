@@ -75,9 +75,9 @@ temp file is wiped when you leave the vault.
 
 **Removing originals (optional).** By default importing *copies* media in (the gallery
 original stays). Enable **Remove original after import** in the vault menu (Android 11+)
-to delete the gallery copies — LockApp resolves each imported item back to its MediaStore
-entry and uses Android's own **delete-request consent dialog**, so the system asks you to
-confirm. This is the only feature that uses media-read access, requested just-in-time.
+to delete the gallery copies — LockApp resolves each imported item to its MediaStore URI
+and uses Android's own **delete-request consent dialog**, so the system asks you to
+confirm. It needs **no** media permission (the consent dialog authorizes the delete).
 
 **Getting media back out / deleting.** Long-press an item to **Export to gallery** (it's
 decrypted and written back to `Pictures/LockApp` or `Movies/LockApp`) or **Delete** it

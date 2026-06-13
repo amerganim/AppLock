@@ -3,6 +3,7 @@ package com.amerganim.lockapp
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
@@ -36,15 +38,6 @@ class VaultActivity : AppCompatActivity() {
     private val picker = registerForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia(30)
     ) { uris -> if (uris.isNotEmpty()) importAll(uris) }
-
-    private val readPermLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
-        val granted = result.values.isNotEmpty() && result.values.all { it }
-        prefs.vaultRemoveOriginal = granted
-        if (!granted) Toast.makeText(this, R.string.vault_remove_needs_perm, Toast.LENGTH_SHORT).show()
-        updateRemoveOriginalMenu()
-    }
 
     private val deleteLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
@@ -90,35 +83,52 @@ class VaultActivity : AppCompatActivity() {
             }
             load()
             if (imported.isNotEmpty() && prefs.vaultRemoveOriginal &&
-                VaultManager.canDeleteOriginals && VaultManager.hasReadMedia(this@VaultActivity)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
             ) {
                 deleteOriginals(imported)
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun deleteOriginals(imported: List<Pair<Uri, Boolean>>) {
         lifecycleScope.launch {
             val mediaStoreUris = withContext(Dispatchers.IO) {
-                imported.mapNotNull { VaultManager.resolveMediaStoreUri(this@VaultActivity, it.first, it.second) }
+                imported.mapNotNull { VaultManager.resolveMediaStoreUri(it.first, it.second) }
             }
-            if (mediaStoreUris.isEmpty()) return@launch
+            if (mediaStoreUris.isEmpty()) {
+                Toast.makeText(this@VaultActivity, R.string.vault_remove_none, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
             val sender = VaultManager.createDeleteIntentSender(this@VaultActivity, mediaStoreUris)
             deleteLauncher.launch(IntentSenderRequest.Builder(sender).build())
         }
     }
 
     private fun onRemoveOriginalToggled(enable: Boolean) {
-        if (enable && !VaultManager.canDeleteOriginals) {
-            Toast.makeText(this, R.string.vault_remove_unsupported, Toast.LENGTH_SHORT).show()
+        if (!enable) {
+            prefs.vaultRemoveOriginal = false
+            updateRemoveOriginalMenu()
             return
         }
-        if (enable && !VaultManager.hasReadMedia(this)) {
-            readPermLauncher.launch(VaultManager.readMediaPermissions())
+        if (!VaultManager.canDeleteOriginals) {
+            // Android 10 and below has no delete-consent dialog.
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.vault_remove_original)
+                .setMessage(R.string.vault_remove_unsupported)
+                .setPositiveButton(android.R.string.ok, null)
+                .setOnDismissListener { updateRemoveOriginalMenu() }
+                .show()
             return
         }
-        prefs.vaultRemoveOriginal = enable
-        updateRemoveOriginalMenu()
+        // Explain how it works before enabling.
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.vault_remove_original)
+            .setMessage(R.string.vault_remove_explain)
+            .setPositiveButton(R.string.enable) { _, _ -> prefs.vaultRemoveOriginal = true }
+            .setNegativeButton(android.R.string.cancel, null)
+            .setOnDismissListener { updateRemoveOriginalMenu() }
+            .show()
     }
 
     private fun updateRemoveOriginalMenu() {

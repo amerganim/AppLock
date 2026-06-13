@@ -4,7 +4,6 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
@@ -12,8 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.OpenableColumns
-import androidx.core.content.ContextCompat
+import androidx.annotation.RequiresApi
 import androidx.security.crypto.EncryptedFile
 import androidx.security.crypto.MasterKey
 import java.io.File
@@ -119,52 +117,28 @@ object VaultManager {
 
     // ---- Deleting originals after import (optional, Android 11+) ----
 
-    /** Whether deleting originals via the consent dialog is supported on this OS. */
+    /** Whether the delete-request consent dialog is available on this OS. */
     val canDeleteOriginals: Boolean
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
-    fun readMediaPermissions(): Array<String> =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                android.Manifest.permission.READ_MEDIA_IMAGES,
-                android.Manifest.permission.READ_MEDIA_VIDEO
-            )
-        } else {
-            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-
-    fun hasReadMedia(context: Context): Boolean =
-        readMediaPermissions().all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-        }
-
     /**
-     * Map a Photo Picker URI back to its MediaStore content URI by matching display
-     * name + size, so it can be passed to the system delete-request. Needs read-media.
+     * Map a Photo Picker / document URI to its MediaStore content URI using the
+     * trailing id in the URI path (handles both `media/<id>` picker URIs and
+     * `image:<id>` document URIs). No media permission is required — the
+     * delete-request below shows the system consent dialog, which authorizes it.
      */
-    fun resolveMediaStoreUri(context: Context, pickerUri: Uri, isVideo: Boolean): Uri? = runCatching {
-        val resolver = context.contentResolver
-        var name: String? = null
-        var size: Long = -1
-        resolver.query(pickerUri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null)
-            ?.use { c -> if (c.moveToFirst()) { name = c.getString(0); size = c.getLong(1) } }
-        if (name == null) return null
+    fun resolveMediaStoreUri(pickerUri: Uri, isVideo: Boolean): Uri? {
+        val id = pickerUri.lastPathSegment?.substringAfterLast(':')?.toLongOrNull() ?: return null
         val collection = if (isVideo) {
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         } else {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         }
-        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME}=? AND ${MediaStore.MediaColumns.SIZE}=?"
-        resolver.query(
-            collection, arrayOf(MediaStore.MediaColumns._ID),
-            selection, arrayOf(name, size.toString()), null
-        )?.use { c ->
-            if (c.moveToFirst()) return ContentUris.withAppendedId(collection, c.getLong(0))
-        }
-        null
-    }.getOrNull()
+        return ContentUris.withAppendedId(collection, id)
+    }
 
     /** Build the system "delete these items?" consent request for [uris] (Android 11+). */
+    @RequiresApi(Build.VERSION_CODES.R)
     fun createDeleteIntentSender(context: Context, uris: List<Uri>): IntentSender =
         MediaStore.createDeleteRequest(context.contentResolver, uris).intentSender
 
