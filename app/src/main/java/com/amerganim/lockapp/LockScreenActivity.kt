@@ -31,6 +31,7 @@ class LockScreenActivity : AppCompatActivity() {
 
     private var builtType: LockType? = null
     private var biometricPromptShowing = false
+    private var lockScreenStarted = false
     private var failCount = 0
     private var selfieTaken = false
 
@@ -42,7 +43,6 @@ class LockScreenActivity : AppCompatActivity() {
         binding = ActivityLockScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
         credential = CredentialManager(this)
-        LockState.lockScreenActive = true
 
         targetPackage = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
         bindHeader()
@@ -70,6 +70,26 @@ class LockScreenActivity : AppCompatActivity() {
                 goHome()
             }
         })
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Mark the lock screen visible only while it is actually on screen. If the user
+        // reaches the protected app another way (e.g. the Recents/Overview switcher), this
+        // activity is stopped — clearing the flag in onStop lets the service detect the app
+        // in the foreground again and re-launch us over it.
+        lockScreenStarted = true
+        LockState.lockScreenActive = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        lockScreenStarted = false
+        // Keep the "visible" flag set while our own biometric system dialog is up: on some
+        // devices it stops this activity, and clearing the flag would make the service
+        // relaunch us and dismiss the prompt. Any other stop means we're truly backgrounded
+        // (Recents switch, Home, another app) — release the flag so the service re-locks.
+        if (!biometricPromptShowing) LockState.lockScreenActive = false
     }
 
     override fun onResume() {
@@ -142,6 +162,11 @@ class LockScreenActivity : AppCompatActivity() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     // Cancelled / "Use PIN" / lockout — fall back to the keypad or pattern.
                     biometricPromptShowing = false
+                    // If the prompt was dismissed while we're off screen (e.g. the user
+                    // swiped to Recents), onStop already ran and skipped clearing the flag
+                    // because the prompt was still up. Release it now so the service can
+                    // re-lock the protected app.
+                    if (!lockScreenStarted) LockState.lockScreenActive = false
                 }
 
                 override fun onAuthenticationFailed() {

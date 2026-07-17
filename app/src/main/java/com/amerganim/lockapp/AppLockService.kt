@@ -59,11 +59,6 @@ class AppLockService : Service() {
         // Keep the current app's unlock fresh and re-lock apps left longer than the delay.
         LockState.onTick(current, prefs.relockDelayMs)
 
-        // Ignore our own UI (settings + the lock screen itself run in our package).
-        if (current == packageName) return
-
-        if (LockState.lockScreenActive) return
-
         // User-chosen app locks honour the master Protection switch (and the optional
         // scheduled pause); the anti-uninstall lock on system screens always applies
         // whenever tamper protection is enabled.
@@ -72,7 +67,14 @@ class AppLockService : Service() {
         val systemLocked = prefs.antiUninstallEnabled &&
             LockPrefs.PROTECTED_SYSTEM_PACKAGES.contains(current)
 
-        if ((userLocked || systemLocked) && !LockState.isUnlocked(current)) {
+        if (shouldShowLockScreen(
+                lockScreenActive = LockState.lockScreenActive,
+                isOwnPackage = current == packageName,
+                userLocked = userLocked,
+                systemLocked = systemLocked,
+                isUnlocked = LockState.isUnlocked(current),
+            )
+        ) {
             showLockScreen(current)
         }
     }
@@ -137,9 +139,35 @@ class AppLockService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
+        /**
+         * Pure decision for whether the lock screen should be (re)launched over [current]
+         * on a given poll tick. Extracted so it can be unit-tested without Android context.
+         *
+         * [lockScreenActive] must reflect whether the lock screen is *currently visible*
+         * (tracked via its onStart/onStop). It is deliberately not a "was ever shown" flag:
+         * if it were, switching to the protected app through the Recents/Overview switcher —
+         * which stops but does not destroy the lock screen — would keep this returning false
+         * and let the app be used unlocked.
+         */
+        fun shouldShowLockScreen(
+            lockScreenActive: Boolean,
+            isOwnPackage: Boolean,
+            userLocked: Boolean,
+            systemLocked: Boolean,
+            isUnlocked: Boolean,
+        ): Boolean {
+            // Ignore our own UI (settings + the lock screen itself run in our package).
+            if (isOwnPackage) return false
+            // The lock screen is already on top — don't stack duplicates.
+            if (lockScreenActive) return false
+            return (userLocked || systemLocked) && !isUnlocked
+        }
+
         private const val CHANNEL_ID = "app_lock_service"
         private const val NOTIF_ID = 1
-        private const val POLL_INTERVAL_MS = 600L
+        // Poll fast enough that the lock screen appears near-instantly when a protected app
+        // is opened. Lower is snappier but costs more battery; ~200ms is a good balance.
+        private const val POLL_INTERVAL_MS = 200L
         private const val LOOKBACK_MS = 10_000L
 
         /** Start (or no-op if already running) the protection service. */
