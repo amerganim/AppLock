@@ -210,7 +210,7 @@ All code is in `app/src/main/java/com/amerganim/lockapp/`.
 | Display over other apps (`SYSTEM_ALERT_WINDOW`) | Show the lock screen over apps. *(required)* |
 | `FOREGROUND_SERVICE` (+ special use) | Keep the monitor alive. |
 | `POST_NOTIFICATIONS` | The ongoing "protection is on" notification (Android 13+). |
-| `QUERY_ALL_PACKAGES` | List launchable apps so you can choose which to lock. |
+| `<queries>` (not a permission) | See launchable apps so you can choose which to lock, plus the launcher package. |
 | `CAMERA` | Only if you enable **Intruder selfie**. |
 | `RECEIVE_BOOT_COMPLETED` | Restart protection after reboot. |
 

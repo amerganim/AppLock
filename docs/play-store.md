@@ -113,20 +113,17 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 
 | Permission | What to say |
 |---|---|
-| `QUERY_ALL_PACKAGES` | **Highest rejection risk — see below.** Justification: a user-facing app locker must list every launchable app so the user can choose which to lock. |
 | `SYSTEM_ALERT_WINDOW` | The lock screen must appear over the protected app the moment it is opened. |
 | Foreground service (`specialUse`) | Watches for a protected app coming to the foreground so the lock prompt can be shown. Subtype string is declared in the manifest. |
 | `PACKAGE_USAGE_STATS` | Granted by the user in system Settings; onboarding explains it before sending them there. |
 | `CAMERA` | Only requested when the user switches on Intruder selfie. |
 | Device admin | Only when the user switches on tamper protection; off by default, disclosed in the setting text and on the system screen. |
 
-> **Before you upload:** Play's permitted uses for `QUERY_ALL_PACKAGES` are a short list
-> (antivirus, file managers, browsers, device search…) and app lockers are not on it, so
-> this is the likeliest reason for a rejection. The app does not actually need it: the
-> list it wants is *launchable apps*, which a `<queries>` element with the
-> `MAIN`/`LAUNCHER` intent already provides, with no declaration form and no broad
-> permission. Switching is a small manifest change and is worth doing before the first
-> submission.
+> **`QUERY_ALL_PACKAGES` is no longer requested.** App lockers are not among Play's
+> permitted uses for it, so it was the likeliest reason for a rejection. The app now
+> declares a `<queries>` element instead — the `MAIN`/`LAUNCHER` intent for the list of
+> lockable apps, the `MAIN`/`HOME` intent to recognise the launcher, and the four
+> anti-tamper packages by name. No declaration form is needed for any of it.
 
 ## Pre-launch checklist
 
@@ -137,7 +134,7 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 - [x] Signed release build (upload keystore + `release` signing config) — see `RELEASE.md`
 - [x] CI/CD (GitHub Actions build + tagged release)
 - [x] Phone screenshots refreshed for 1.1.0 (`docs/screenshots/`)
-- [ ] Replace `QUERY_ALL_PACKAGES` with a `<queries>` element (see the note above)
+- [x] `QUERY_ALL_PACKAGES` replaced with a `<queries>` element — no declaration needed
 - [ ] Data safety form (answers above)
 - [ ] Permission declarations (table above)
 - [ ] Content rating questionnaire
@@ -148,12 +145,16 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 
 | Asset | File | Notes |
 |---|---|---|
-| Phone screenshots | `docs/screenshots/01-lock … 06-welcome` | 1080×2340, captured on a Galaxy A15 (Android 16) |
+| Phone screenshots | `docs/screenshots/01-lock … 05-settings` | 1080×2340, **light theme**, captured on a Galaxy A15 (Android 16) |
 | Feature graphic (1024×500) | `docs/feature-graphic.png` | |
 | Store icon (512×512) | `docs/play-icon-512.png` | |
 
-**Before uploading the screenshots:** `02-home` and `05-settings` were shot on a real
-phone, so they show that phone's installed apps — other companies' names and icons in
-your listing can draw a trademark complaint, and the list is personal. Consider
-re-shooting those two on a device with a curated set of apps. Screens are `FLAG_SECURE`,
-so `screencap` returns black; `RELEASE.md` has the procedure for capturing them.
+**Before uploading the screenshots:** `02-home` shows that phone's real installed apps —
+other companies' names and icons in your listing can draw a trademark complaint, and the
+list is personal. Consider re-shooting it on a device with a curated set of apps.
+
+The welcome screen is not in the set: it only appears on a first run, so capturing it
+means wiping app data. Add it during a fresh install if you want a sixth.
+
+Screens are `FLAG_SECURE`, so `screencap` returns black; `RELEASE.md` has the procedure
+for capturing them.

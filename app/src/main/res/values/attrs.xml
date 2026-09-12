@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- True for screens painted on the dark lock background, which need light status
+         and navigation bar icons whatever the app theme is. -->
+    <attr name="lockAppDarkBackground" format="boolean" />
+</resources>

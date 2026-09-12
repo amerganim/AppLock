@@ -13,14 +13,32 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- List installed apps so the user can pick which ones to lock. -->
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
     <!-- Optional: capture an "intruder selfie" after repeated failed unlock attempts. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+
+    <!-- Package visibility. The app needs exactly two things: every app the user can
+         launch (so they can choose which to lock, and so the lock screen can show that
+         app's name and icon), and the home/launcher package (to tell the task switcher
+         apart from the home screen). Declaring these is enough — QUERY_ALL_PACKAGES is
+         far broader than the app needs and is not a permitted use for an app locker. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+        <!-- Anti-tamper locks these; naming them keeps the lock screen able to show a
+             proper label instead of a bare package name. -->
+        <package android:name="com.android.settings" />
+        <package android:name="com.android.packageinstaller" />
+        <package android:name="com.google.android.packageinstaller" />
+        <package android:name="com.android.vending" />
+    </queries>
 
     <application
         android:name=".LockApp"

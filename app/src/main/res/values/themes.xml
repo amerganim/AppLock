@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.LockApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="lockAppDarkBackground">false</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -12,6 +13,7 @@
 
     <!-- Full-screen, dark theme used for the lock screen shown over other apps. -->
     <style name="Theme.LockApp.Lock" parent="Theme.LockApp">
+        <item name="lockAppDarkBackground">true</item>
         <item name="android:windowBackground">@color/lock_bg</item>
         <item name="android:statusBarColor">@color/lock_bg</item>
         <item name="android:navigationBarColor">@color/lock_bg</item>
