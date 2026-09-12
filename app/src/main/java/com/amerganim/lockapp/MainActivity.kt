@@ -167,11 +167,38 @@ class MainActivity : SecureActivity() {
             adapter = AppListAdapter(
                 items = allApps.toMutableList(),
                 isLocked = { prefs.isLocked(it) },
-                onToggle = { pkg, locked -> prefs.setLocked(pkg, locked) }
+                onToggle = { pkg, locked -> onAppLockToggled(pkg, locked) }
             )
             binding.appsList.adapter = adapter
             applyFilter(binding.searchInput.text?.toString().orEmpty())
         }
+    }
+
+    /**
+     * Locking an app is the user saying they want it protected, so the master switch
+     * follows. Without this, a new user picks their apps, nothing happens, and the app
+     * looks broken until they find the Protection switch further up the screen.
+     */
+    private fun onAppLockToggled(pkg: String, locked: Boolean) {
+        prefs.setLocked(pkg, locked)
+        if (!shouldAutoEnableProtection(
+                justLocked = locked,
+                protectionEnabled = prefs.protectionEnabled,
+                hasPermissions = Permissions.hasRequired(this),
+            )
+        ) {
+            // Locked an app but we cannot protect it yet: say so instead of leaving the
+            // user to wonder why nothing happens.
+            if (locked && !prefs.protectionEnabled && !Permissions.hasRequired(this)) {
+                Toast.makeText(this, R.string.permissions_needed, Toast.LENGTH_LONG).show()
+                refreshPermissionUi()
+            }
+            return
+        }
+        prefs.protectionEnabled = true
+        AppLockService.sync(this)
+        syncProtectionSwitch()
+        Toast.makeText(this, R.string.protection_auto_enabled, Toast.LENGTH_SHORT).show()
     }
 
     private fun applyFilter(query: String) {
@@ -179,6 +206,19 @@ class MainActivity : SecureActivity() {
         val filtered = if (q.isEmpty()) allApps
         else allApps.filter { it.label.lowercase().contains(q) }
         adapter?.submit(filtered)
+    }
+
+    companion object {
+        /**
+         * Whether toggling an app should also switch Protection on. Pure so it can be
+         * unit-tested: only a fresh lock, only while Protection is off, and only when the
+         * permissions to actually enforce it are in place.
+         */
+        fun shouldAutoEnableProtection(
+            justLocked: Boolean,
+            protectionEnabled: Boolean,
+            hasPermissions: Boolean,
+        ): Boolean = justLocked && !protectionEnabled && hasPermissions
     }
 
     private fun queryLaunchableApps(): List<AppEntry> {

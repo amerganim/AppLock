@@ -19,7 +19,8 @@ no ads, and no tracking.
 ### Locking
 - **PIN or pattern** lock; **fingerprint/face** quick unlock (PIN/pattern is always
   a fallback).
-- **Per-app locking** for every launchable app, with in-app **search**.
+- **Per-app locking** for every launchable app, with in-app **search**. Locking your
+  first app turns **Protection** on for you, so the app never sits there doing nothing.
 - A foreground service detects the foreground app and shows the lock screen over any
   protected app; the app's own UI is gated too.
 - **Configurable re-lock delay** (immediately / 10s / 30s / 1 min after you leave).

@@ -68,6 +68,7 @@
     <string name="perm_battery">Allow unrestricted battery use (keeps protection running)</string>
     <string name="settings_screen_unavailable">This device does not offer that settings screen. Open it from Android Settings instead.</string>
     <string name="permissions_needed">Grant the required permissions first</string>
+    <string name="protection_auto_enabled">Protection turned on</string>
     <string name="search_apps">Search apps</string>
     <string name="delete">Delete</string>
 
