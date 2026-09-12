@@ -22,7 +22,8 @@ class LockApp : Application() {
             override fun onActivityStarted(activity: Activity) = LockState.onActivityStarted()
             override fun onActivityStopped(activity: Activity) = LockState.onActivityStopped()
 
-            override fun onActivityCreated(activity: Activity, state: Bundle?) = Unit
+            override fun onActivityCreated(activity: Activity, state: Bundle?) =
+                activity.applySystemBarInsets()
             override fun onActivityResumed(activity: Activity) = Unit
             override fun onActivityPaused(activity: Activity) = Unit
             override fun onActivitySaveInstanceState(activity: Activity, out: Bundle) = Unit

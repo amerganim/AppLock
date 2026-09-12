@@ -7,7 +7,7 @@ includes an **encrypted photo/video vault**, **intruder selfie**, **app disguise
 and **tamper protection** — everything runs and stays on the device, with no account,
 no ads, and no tracking.
 
-- **Min SDK** 26 (Android 8.0) · **Target/Compile SDK** 35 · 100% Kotlin.
+- **Min SDK** 26 (Android 8.0) · **Target/Compile SDK** 36 (Android 16) · 100% Kotlin.
 - Store listing, ASO keywords, privacy policy, Play assets and the release process
   live in [`docs/`](docs/).
 - Releases (signed AAB + APK) are published automatically — see [CI/CD](#cicd--releases).

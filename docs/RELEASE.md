@@ -41,6 +41,36 @@ Verify the APK signature:
 "$env:LOCALAPPDATA\Android\Sdk\build-tools\36.0.0\apksigner.bat" verify --print-certs app/build/outputs/apk/release/app-release.apk
 ```
 
+## Version numbers
+
+`app/build.gradle.kts` holds `versionCode` / `versionName`. Play rejects an upload whose
+`versionCode` is not higher than the last one, so bump it before every release:
+
+| Release | versionName | versionCode |
+|---|---|---|
+| 1.0.1 | 1.0.1 | 2 |
+| 1.1.0 | 1.1.0 | 3 |
+
+`targetSdk` must stay within Play's annual requirement — API 36 (Android 16) for new
+apps and updates from 31 Aug 2026. Raising it is not a formality: Android 16 ignores
+`windowOptOutEdgeToEdgeEnforcement`, so the app applies window insets itself
+(`Insets.kt`). Re-check the bottom of the lock screen on a device after any bump.
+
+## Capturing store screenshots
+
+Every gated screen sets `FLAG_SECURE`, so `adb exec-out screencap` returns a black
+image and the screens cannot be captured directly. To refresh the store screenshots:
+
+1. Temporarily set `SecureActivity.secureWindow` to `false`, and comment out the
+   `window.setFlags(FLAG_SECURE, …)` line in `LockScreenActivity.onCreate`.
+2. `./gradlew :app:assembleDebug` and install on a device.
+3. Capture: `adb exec-out screencap -p > shot.png`.
+4. **Revert both edits** and reinstall before shipping anything. Check it worked: a
+   screencap of the lock screen must come back black.
+
+Do not commit the temporary edits — they disable the protection that keeps the lock
+screen, vault and settings out of screenshots and the app switcher.
+
 ## Continuous integration
 
 - **`.github/workflows/android-ci.yml`** — on every push/PR to `main`: builds the

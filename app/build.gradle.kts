@@ -20,15 +20,15 @@ val hasReleaseSigning = releaseStoreFile != null && releaseStoreFile.exists()
 
 android {
     namespace = "com.amerganim.lockapp"
-    compileSdk = 35
+    compileSdk = 36
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.amerganim.lockapp"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.1"
+        targetSdk = 36
+        versionCode = 3
+        versionName = "1.1.0"
     }
 
     signingConfigs {

@@ -1,6 +1,7 @@
 package com.amerganim.lockapp
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -220,21 +221,31 @@ class LockScreenActivity : AppCompatActivity() {
         if (isRecents) {
             // The package here is the launcher, whose name and icon would be misleading.
             binding.appName.setText(R.string.recents_screen)
-            binding.appIcon.setImageResource(R.drawable.ic_lock)
+            showPadlockIcon()
         } else if (isSelf) {
             binding.appName.text = ""
-            binding.appIcon.setImageResource(R.drawable.ic_lock)
+            showPadlockIcon()
         } else {
             val pm = packageManager
             try {
                 val info = pm.getApplicationInfo(targetPackage, 0)
                 binding.appName.text = pm.getApplicationLabel(info)
+                // Drop the white tint the padlock placeholder needs, or the app icon is
+                // painted over into a solid white blob.
+                binding.appIcon.imageTintList = null
                 binding.appIcon.setImageDrawable(pm.getApplicationIcon(info))
             } catch (e: Exception) {
                 binding.appName.text = targetPackage
-                binding.appIcon.setImageResource(R.drawable.ic_lock)
+                showPadlockIcon()
             }
         }
+    }
+
+    private fun showPadlockIcon() {
+        binding.appIcon.imageTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(this, R.color.white)
+        )
+        binding.appIcon.setImageResource(R.drawable.ic_lock)
     }
 
     private fun verify(value: String) {
