@@ -33,10 +33,6 @@ class MainActivity : SecureActivity() {
     private var allApps: List<AppEntry> = emptyList()
     private var adapter: AppListAdapter? = null
 
-    // The home screen is the one gated screen that holds nothing secret beyond the list
-    // of locked apps, and it is what store screenshots and support requests capture.
-    override val secureWindow = false
-
     private val notifPermLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             refreshPermissionUi()

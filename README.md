@@ -43,9 +43,10 @@ no ads, and no tracking.
 - **Every screen is gated** — the home screen, settings, vault and intruder gallery each
   require the lock, so none of them can be reached by restoring the app from Recents.
 - **Scrambled keypad** option to defeat shoulder-surfing.
-- Every gated screen except the home screen is **`FLAG_SECURE`** (no screenshots, and
-  nothing readable in the recents thumbnail): lock screen, PIN/pattern setup, recovery,
-  settings, vault and the intruder gallery.
+- Every gated screen is **`FLAG_SECURE`** (no screenshots, and a blank card in the
+  recents/task switcher): home, lock screen, PIN/pattern setup, recovery, settings,
+  vault and the intruder gallery. Without it, the task switcher showed the home screen —
+  locked-app list and all — to anyone who pressed the Recents button.
 
 ### Anti-tamper & disguise
 - **Tamper protection** — locks the Settings app + package installers (so Uninstall /
