@@ -1,8 +1,6 @@
 package com.amerganim.lockapp
 
 import android.os.Bundle
-import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.amerganim.lockapp.databinding.ActivityVaultViewerBinding
 import kotlinx.coroutines.Dispatchers
@@ -10,13 +8,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Full-screen viewer for a single decrypted vault image. */
-class VaultViewerActivity : AppCompatActivity() {
+class VaultViewerActivity : SecureActivity() {
 
     private lateinit var binding: ActivityVaultViewerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // FLAG_SECURE is applied by SecureActivity.
         super.onCreate(savedInstanceState)
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         binding = ActivityVaultViewerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

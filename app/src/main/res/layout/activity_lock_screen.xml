@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -41,6 +42,19 @@
         android:layout_marginTop="6dp"
         android:textColor="#B0BEC5"
         android:textSize="15sp" />
+
+    <!-- Wrong-attempt feedback and the lockout countdown. Kept separate from the app
+         name above, which used to be overwritten by the error message. -->
+    <TextView
+        android:id="@+id/statusMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textColor="#FF8A80"
+        android:textSize="14sp"
+        android:visibility="invisible"
+        tools:text="Try again in 0:30" />
 
     <include
         android:id="@+id/dots"

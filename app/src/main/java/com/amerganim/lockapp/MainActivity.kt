@@ -4,11 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -22,19 +22,20 @@ import kotlinx.coroutines.withContext
  * Home screen, gated behind the user's lock. Grant permissions, turn protection
  * on/off, search and pick which apps to lock. Everything else lives in Settings.
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : SecureActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var credential: CredentialManager
     private lateinit var prefs: LockPrefs
 
-    /** True while we are the ones launching the lock screen (so onStop must not
-     *  reset the authenticated flag). */
-    private var launchingLock = false
     private var appsLoaded = false
 
     private var allApps: List<AppEntry> = emptyList()
     private var adapter: AppListAdapter? = null
+
+    // The home screen is the one gated screen that holds nothing secret beyond the list
+    // of locked apps, and it is what store screenshots and support requests capture.
+    override val secureWindow = false
 
     private val notifPermLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -58,11 +59,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.permUsage.setOnClickListener {
             allowSettingsTemporarily()
-            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            openSettingsScreen(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
         binding.permOverlay.setOnClickListener {
             allowSettingsTemporarily()
-            startActivity(
+            openSettingsScreen(
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
             )
         }
@@ -70,47 +71,40 @@ class MainActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notifPermLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             } else {
-                startActivity(
+                openSettingsScreen(
                     Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                         .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                 )
             }
+        }
+        binding.permBattery.setOnClickListener {
+            allowSettingsTemporarily()
+            openSettingsScreen(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
         }
 
         binding.protectionSwitch.setOnCheckedChangeListener { _, checked -> onProtectionToggled(checked) }
         binding.searchInput.doAfterTextChanged { applyFilter(it?.toString().orEmpty()) }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        if (!credential.isCredentialSet()) {
-            startActivity(Intent(this, WelcomeActivity::class.java))
-            finish()
-            return
-        }
-
-        if (!LockState.settingsAuthed) {
-            // Require the lock before revealing the app.
-            binding.content.visibility = View.INVISIBLE
-            launchingLock = true
-            startActivity(
-                Intent(this, LockScreenActivity::class.java)
-                    .putExtra(LockScreenActivity.EXTRA_PACKAGE, packageName)
-            )
-            return
-        }
-
-        binding.content.visibility = View.VISIBLE
-        refreshPermissionUi()
-        syncProtectionSwitch()
-        ensureServiceRunning()
-        if (!appsLoaded) loadApps()
+    /** Send first-run users to onboarding instead of prompting for a lock they have not set. */
+    override fun onBeforeAuthCheck(): Boolean {
+        if (credential.isCredentialSet()) return true
+        startActivity(Intent(this, WelcomeActivity::class.java))
+        finish()
+        return false
     }
 
-    override fun onStop() {
-        super.onStop()
-        if (launchingLock) launchingLock = false else LockState.settingsAuthed = false
+    override fun onAuthenticated() {
+        refreshPermissionUi()
+        syncProtectionSwitch()
+        AppLockService.sync(this)
+        if (appsLoaded) {
+            // The locked-app list may have changed while we were away (auto-lock on
+            // install, or a lock toggled from another screen).
+            applyFilter(binding.searchInput.text?.toString().orEmpty())
+        } else {
+            loadApps()
+        }
     }
 
     private fun onProtectionToggled(enable: Boolean) {
@@ -121,23 +115,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
         prefs.protectionEnabled = enable
-        applyServiceState()
+        AppLockService.sync(this)
         updateProtectionLabel(enable)
-    }
-
-    /** Start the monitor if either protection or tamper-locking needs it; otherwise stop it. */
-    private fun applyServiceState() {
-        if ((prefs.protectionEnabled || prefs.antiUninstallEnabled) && Permissions.hasRequired(this)) {
-            AppLockService.start(this)
-        } else {
-            AppLockService.stop(this)
-        }
-    }
-
-    private fun ensureServiceRunning() {
-        if ((prefs.protectionEnabled || prefs.antiUninstallEnabled) && Permissions.hasRequired(this)) {
-            AppLockService.start(this)
-        }
     }
 
     private fun syncProtectionSwitch() {
@@ -158,6 +137,13 @@ class MainActivity : AppCompatActivity() {
         LockPrefs.PROTECTED_SYSTEM_PACKAGES.forEach { LockState.markUnlocked(it) }
     }
 
+    /** Not every OEM ships every settings screen; never crash because one is missing. */
+    private fun openSettingsScreen(intent: Intent) {
+        runCatching { startActivity(intent) }.onFailure {
+            Toast.makeText(this, R.string.settings_screen_unavailable, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun refreshPermissionUi() {
         binding.permUsage.visibility =
             if (Permissions.hasUsageAccess(this)) View.GONE else View.VISIBLE
@@ -165,6 +151,15 @@ class MainActivity : AppCompatActivity() {
             if (Permissions.hasOverlay(this)) View.GONE else View.VISIBLE
         binding.permNotifications.visibility =
             if (Permissions.hasNotifications(this)) View.GONE else View.VISIBLE
+        // Battery optimisation is the usual reason protection "randomly stops" on
+        // aggressive OEMs: the system kills the monitoring service in the background.
+        binding.permBattery.visibility =
+            if (isBatteryOptimized()) View.VISIBLE else View.GONE
+    }
+
+    private fun isBatteryOptimized(): Boolean {
+        val power = getSystemService(PowerManager::class.java) ?: return false
+        return !power.isIgnoringBatteryOptimizations(packageName)
     }
 
     private fun loadApps() {

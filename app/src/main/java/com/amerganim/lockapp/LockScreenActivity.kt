@@ -10,11 +10,16 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.amerganim.lockapp.databinding.ActivityLockScreenBinding
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /**
  * Full-screen unlock prompt (PIN or pattern, plus optional biometric). Two modes:
- *  - "self": shown to protect LockApp's own settings (launched by [MainActivity]).
+ *  - "self": shown to protect LockApp's own settings (launched by [SecureActivity]).
  *  - app lock: shown over a third-party app by [AppLockService].
  *
  * On success we don't pass an activity result (this activity is singleInstance, so
@@ -24,6 +29,7 @@ class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLockScreenBinding
     private lateinit var credential: CredentialManager
+    private lateinit var prefs: LockPrefs
     private var pinPad: PinPad? = null
 
     private lateinit var targetPackage: String
@@ -31,9 +37,7 @@ class LockScreenActivity : AppCompatActivity() {
 
     private var builtType: LockType? = null
     private var biometricPromptShowing = false
-    private var lockScreenStarted = false
-    private var failCount = 0
-    private var selfieTaken = false
+    private var cooldownJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +47,17 @@ class LockScreenActivity : AppCompatActivity() {
         binding = ActivityLockScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
         credential = CredentialManager(this)
+        prefs = LockPrefs(this)
 
         targetPackage = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
+
+        // Nothing to verify against (app data cleared, setup never finished): fail open
+        // rather than trapping the user behind a prompt no input can satisfy.
+        if (!credential.isCredentialSet()) {
+            unlock()
+            return
+        }
+
         bindHeader()
         buildInput()
 
@@ -54,7 +67,7 @@ class LockScreenActivity : AppCompatActivity() {
             startActivity(Intent(this, RecoveryActivity::class.java))
         }
 
-        val fakeCover = LockPrefs(this).fakeCoverEnabled
+        val fakeCover = prefs.fakeCoverEnabled
         if (fakeCover) setupFakeCover()
 
         if (biometricAvailable()) {
@@ -74,22 +87,15 @@ class LockScreenActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        // Mark the lock screen visible only while it is actually on screen. If the user
-        // reaches the protected app another way (e.g. the Recents/Overview switcher), this
-        // activity is stopped — clearing the flag in onStop lets the service detect the app
-        // in the foreground again and re-launch us over it.
-        lockScreenStarted = true
-        LockState.lockScreenActive = true
+        applyCooldownState()
     }
 
     override fun onStop() {
         super.onStop()
-        lockScreenStarted = false
-        // Keep the "visible" flag set while our own biometric system dialog is up: on some
-        // devices it stops this activity, and clearing the flag would make the service
-        // relaunch us and dismiss the prompt. Any other stop means we're truly backgrounded
-        // (Recents switch, Home, another app) — release the flag so the service re-locks.
-        if (!biometricPromptShowing) LockState.lockScreenActive = false
+        cooldownJob?.cancel()
+        // Nothing to release here: the service decides whether we are needed from the
+        // foreground package, so however this activity is left (Recents switch, Home,
+        // another app) the protected app is detected again and we are relaunched over it.
     }
 
     override fun onResume() {
@@ -111,13 +117,14 @@ class LockScreenActivity : AppCompatActivity() {
 
         if (pin) {
             if (pinPad == null) {
-                pinPad = PinPad(binding.keypad, binding.dots, LockPrefs(this).scrambleKeypad) { verify(it) }
+                pinPad = PinPad(binding.keypad, binding.dots, prefs.scrambleKeypad) { verify(it) }
             }
             pinPad?.reset()
         } else {
             binding.patternView.onPatternDetected = { indices -> verify(PatternLockView.encode(indices)) }
             binding.patternView.clearPattern()
         }
+        applyCooldownState()
     }
 
     private fun setupFakeCover() {
@@ -142,7 +149,7 @@ class LockScreenActivity : AppCompatActivity() {
         }
 
     private fun biometricAvailable(): Boolean {
-        if (!LockPrefs(this).biometricEnabled) return false
+        if (!prefs.biometricEnabled) return false
         return BiometricManager.from(this).canAuthenticate(BIOMETRIC_WEAK) ==
             BiometricManager.BIOMETRIC_SUCCESS
     }
@@ -162,11 +169,6 @@ class LockScreenActivity : AppCompatActivity() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     // Cancelled / "Use PIN" / lockout — fall back to the keypad or pattern.
                     biometricPromptShowing = false
-                    // If the prompt was dismissed while we're off screen (e.g. the user
-                    // swiped to Recents), onStop already ran and skipped clearing the flag
-                    // because the prompt was still up. Release it now so the service can
-                    // re-lock the protected app.
-                    if (!lockScreenStarted) LockState.lockScreenActive = false
                 }
 
                 override fun onAuthenticationFailed() {
@@ -188,9 +190,14 @@ class LockScreenActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        targetPackage = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
+        val requested = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
+        // Re-delivery for the app we are already prompting for (the service can launch us
+        // again while we come forward) must not wipe a PIN the user is halfway through.
+        if (requested == targetPackage) return
+        targetPackage = requested
         bindHeader()
         buildInput()
+        showStatus(null)
     }
 
     private fun bindHeader() {
@@ -211,29 +218,89 @@ class LockScreenActivity : AppCompatActivity() {
     }
 
     private fun verify(value: String) {
+        // Belt and braces: input is disabled during a cooldown, but never check a
+        // credential while one is running.
+        if (AttemptGuard.remainingCooldownMs(prefs, AttemptScope.UNLOCK) > 0L) {
+            applyCooldownState()
+            return
+        }
         if (credential.verify(value)) {
             unlock()
         } else {
-            binding.appName.setText(R.string.wrong_credential)
             if (builtType == LockType.PIN) pinPad?.reset() else binding.patternView.showError()
             onWrongAttempt()
         }
     }
 
     private fun onWrongAttempt() {
-        failCount++
-        if (!selfieTaken &&
-            failCount >= LockPrefs.INTRUDER_THRESHOLD &&
-            LockPrefs(this).intruderSelfieEnabled &&
-            IntruderManager.hasCameraPermission(this)
-        ) {
-            selfieTaken = true
-            IntruderManager.capture(this, targetPackage)
+        val failures = AttemptGuard.registerFailure(prefs, AttemptScope.UNLOCK)
+        maybeCaptureIntruder(failures)
+
+        if (AttemptGuard.remainingCooldownMs(prefs, AttemptScope.UNLOCK) > 0L) {
+            applyCooldownState()
+            return
         }
+        val triesLeft = AttemptGuard.triesLeft(prefs, AttemptScope.UNLOCK)
+        showStatus(
+            if (failures >= AttemptGuard.WARN_FROM_FAILURES) {
+                resources.getQuantityString(R.plurals.tries_left, triesLeft, triesLeft)
+            } else {
+                getString(R.string.wrong_credential)
+            }
+        )
+    }
+
+    /**
+     * Capture an intruder selfie every [LockPrefs.INTRUDER_THRESHOLD] wrong attempts.
+     * The counter is persisted, so closing and reopening the lock screen between guesses
+     * no longer resets it (which used to make the capture avoidable).
+     */
+    private fun maybeCaptureIntruder(failures: Int) {
+        if (failures <= 0 || failures % LockPrefs.INTRUDER_THRESHOLD != 0) return
+        if (!prefs.intruderSelfieEnabled || !IntruderManager.hasCameraPermission(this)) return
+        IntruderManager.capture(this, targetPackage)
+    }
+
+    /** Lock the input out (with a live countdown) while a cooldown is running. */
+    private fun applyCooldownState() {
+        cooldownJob?.cancel()
+        if (AttemptGuard.remainingCooldownMs(prefs, AttemptScope.UNLOCK) <= 0L) {
+            setInputEnabled(true)
+            return
+        }
+        setInputEnabled(false)
+        cooldownJob = lifecycleScope.launch {
+            while (isActive) {
+                val left = AttemptGuard.remainingCooldownMs(prefs, AttemptScope.UNLOCK)
+                if (left <= 0L) break
+                showStatus(getString(R.string.locked_out, AttemptGuard.formatCountdown(left)))
+                delay(COUNTDOWN_TICK_MS)
+            }
+            setInputEnabled(true)
+            showStatus(null)
+        }
+    }
+
+    private fun setInputEnabled(enabled: Boolean) {
+        pinPad?.setInputEnabled(enabled)
+        binding.patternView.setEnabledInput(enabled)
+        val alpha = if (enabled) 1f else DISABLED_ALPHA
+        binding.keypad.root.alpha = alpha
+        binding.patternView.alpha = alpha
+        if (enabled) {
+            pinPad?.reset()
+            binding.patternView.clearPattern()
+        }
+    }
+
+    private fun showStatus(message: String?) {
+        binding.statusMessage.text = message.orEmpty()
+        binding.statusMessage.visibility = if (message.isNullOrEmpty()) View.INVISIBLE else View.VISIBLE
     }
 
     /** Shared success path for PIN, pattern and biometric unlock. */
     private fun unlock() {
+        AttemptGuard.reset(prefs, AttemptScope.UNLOCK)
         if (isSelf) {
             LockState.settingsAuthed = true
         } else {
@@ -247,16 +314,13 @@ class LockScreenActivity : AppCompatActivity() {
             addCategory(Intent.CATEGORY_HOME)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        startActivity(home)
+        runCatching { startActivity(home) }
         finish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        LockState.lockScreenActive = false
     }
 
     companion object {
         const val EXTRA_PACKAGE = "extra_package"
+        private const val COUNTDOWN_TICK_MS = 500L
+        private const val DISABLED_ALPHA = 0.35f
     }
 }

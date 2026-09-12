@@ -1,5 +1,6 @@
 package com.amerganim.lockapp
 
+import android.annotation.SuppressLint
 import android.content.Context
 
 /** Non-secret settings: which packages are locked, and whether protection is enabled. */
@@ -87,6 +88,27 @@ class LockPrefs(context: Context) {
     var scheduleEndMinutes: Int
         get() = prefs.getInt(KEY_SCHED_END, 6 * 60)
         set(value) = prefs.edit().putInt(KEY_SCHED_END, value).apply()
+
+    // ---- Wrong-attempt throttling (see AttemptGuard) ----
+
+    fun failedAttempts(scope: AttemptScope): Int = prefs.getInt(keyFailures(scope), 0)
+
+    @SuppressLint("ApplySharedPref")
+    fun setFailedAttempts(scope: AttemptScope, value: Int) {
+        // commit(): the counter must survive an immediate force-stop of the app.
+        prefs.edit().putInt(keyFailures(scope), value).commit()
+    }
+
+    fun cooldownUntil(scope: AttemptScope): Long = prefs.getLong(keyCooldown(scope), 0L)
+
+    @SuppressLint("ApplySharedPref")
+    fun setCooldownUntil(scope: AttemptScope, value: Long) {
+        // commit(): a cooldown must survive an immediate force-stop of the app.
+        prefs.edit().putLong(keyCooldown(scope), value).commit()
+    }
+
+    private fun keyFailures(scope: AttemptScope) = "failed_attempts_${scope.name.lowercase()}"
+    private fun keyCooldown(scope: AttemptScope) = "cooldown_until_${scope.name.lowercase()}"
 
     /** True if locking is currently paused by the schedule (handles overnight windows). */
     fun isLockingPausedNow(): Boolean {

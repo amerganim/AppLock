@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
@@ -15,7 +14,7 @@ import com.amerganim.lockapp.databinding.ActivitySettingsBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /** Central settings: change lock, recovery, auto-lock timing, fingerprint, tamper, theme. */
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : SecureActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var prefs: LockPrefs
@@ -89,8 +88,7 @@ class SettingsActivity : AppCompatActivity() {
         }.getOrDefault("")
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onAuthenticated() {
         binding.lockTypeSubtitle.text = getString(
             if (credential.lockType() == LockType.PIN) R.string.lock_type_pin else R.string.lock_type_pattern
         )
@@ -216,9 +214,9 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun onTamperToggled(enable: Boolean) {
         prefs.antiUninstallEnabled = enable
-        if (prefs.protectionEnabled || enable) {
-            if (Permissions.hasRequired(this)) AppLockService.start(this)
-        }
+        // Starts the monitor when tamper protection needs it, and stops it when neither
+        // that nor the Protection switch does (it used to keep polling for nothing).
+        AppLockService.sync(this)
         if (enable) {
             if (!dpm.isAdminActive(adminComponent)) {
                 LockPrefs.PROTECTED_SYSTEM_PACKAGES.forEach { LockState.markUnlocked(it) }

@@ -8,14 +8,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -27,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Encrypted photo/video vault: import from the gallery, view, export, delete. */
-class VaultActivity : AppCompatActivity() {
+class VaultActivity : SecureActivity() {
 
     private lateinit var binding: ActivityVaultBinding
     private val items = mutableListOf<VaultDisplayItem>()
@@ -48,9 +46,9 @@ class VaultActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // FLAG_SECURE (vault contents must not leak into screenshots / recents) is
+        // applied by SecureActivity.
         super.onCreate(savedInstanceState)
-        // Vault contents must not leak into screenshots / recents.
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         binding = ActivityVaultBinding.inflate(layoutInflater)
         setContentView(binding.root)
         prefs = LockPrefs(this)

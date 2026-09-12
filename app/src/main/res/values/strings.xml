@@ -20,6 +20,7 @@
     <string name="enter_pattern_title">Draw pattern</string>
     <string name="wrong_pin">Wrong PIN</string>
     <string name="wrong_credential">Incorrect — try again</string>
+    <string name="locked_out">Too many wrong attempts. Try again in %1$s</string>
     <string name="forgot_link">Forgot?</string>
 
     <!-- Biometric -->
@@ -61,6 +62,8 @@
     <string name="perm_usage">Grant "Usage access"</string>
     <string name="perm_overlay">Allow "Display over other apps"</string>
     <string name="perm_notifications">Allow notifications</string>
+    <string name="perm_battery">Allow unrestricted battery use (keeps protection running)</string>
+    <string name="settings_screen_unavailable">This device does not offer that settings screen. Open it from Android Settings instead.</string>
     <string name="permissions_needed">Grant the required permissions first</string>
     <string name="search_apps">Search apps</string>
     <string name="delete">Delete</string>
@@ -136,10 +139,17 @@
     <string name="notif_channel_name">App lock protection</string>
     <string name="notif_title">LockApp is protecting your apps</string>
     <string name="notif_text">Locked apps will ask for your PIN or pattern.</string>
+    <string name="notif_title_paused">Protection is paused</string>
+    <string name="notif_text_paused">A required permission was turned off. Tap to fix it.</string>
 
     <string name="autolock_channel_name">Auto-locked apps</string>
     <string name="autolock_notif_title">App locked</string>
     <string name="autolock_notif_text">%1$s was locked automatically.</string>
+
+    <plurals name="tries_left">
+        <item quantity="one">Incorrect — %1$d try left before a timeout</item>
+        <item quantity="other">Incorrect — %1$d tries left before a timeout</item>
+    </plurals>
 
     <string-array name="security_questions">
         <item>What was the name of your first pet?</item>

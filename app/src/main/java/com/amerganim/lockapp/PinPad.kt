@@ -1,5 +1,7 @@
 package com.amerganim.lockapp
 
+import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.ImageView
 import com.amerganim.lockapp.databinding.LayoutKeypadBinding
 import com.amerganim.lockapp.databinding.ViewPinDotsBinding
@@ -16,6 +18,8 @@ class PinPad(
 ) {
     private val entry = StringBuilder()
     private val dotViews: List<ImageView> = listOf(dots.dot1, dots.dot2, dots.dot3, dots.dot4)
+    private val keys: List<View>
+    private var inputEnabled = true
 
     init {
         // Button positions in visual order; the digits they carry can be shuffled.
@@ -29,13 +33,27 @@ class PinPad(
         buttons.forEachIndexed { i, button ->
             val digit = assigned[i]
             button.text = digit.toString()
-            button.setOnClickListener { append('0' + digit) }
+            button.setOnClickListener {
+                it.tap()
+                append('0' + digit)
+            }
         }
-        keypad.btnDelete.setOnClickListener { delete() }
+        keypad.btnDelete.setOnClickListener {
+            it.tap()
+            delete()
+        }
+        keys = buttons + keypad.btnDelete
         render()
     }
 
+    /** Block entry (used while a wrong-attempt cooldown is running). */
+    fun setInputEnabled(enabled: Boolean) {
+        inputEnabled = enabled
+        keys.forEach { it.isEnabled = enabled }
+    }
+
     private fun append(c: Char) {
+        if (!inputEnabled) return
         if (entry.length >= CredentialManager.PIN_LENGTH) return
         entry.append(c)
         render()
@@ -46,6 +64,7 @@ class PinPad(
     }
 
     private fun delete() {
+        if (!inputEnabled) return
         if (entry.isNotEmpty()) {
             entry.deleteCharAt(entry.length - 1)
             render()
@@ -62,5 +81,10 @@ class PinPad(
         dotViews.forEachIndexed { i, dot ->
             dot.setImageResource(if (i < entry.length) R.drawable.dot_filled else R.drawable.dot_empty)
         }
+    }
+
+    /** Confirm each keypress by touch, the way the system keyguard does. */
+    private fun View.tap() {
+        performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
 }

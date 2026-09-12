@@ -23,6 +23,8 @@ no ads, and no tracking.
 - A foreground service detects the foreground app and shows the lock screen over any
   protected app; the app's own UI is gated too.
 - **Configurable re-lock delay** (immediately / 10s / 30s / 1 min after you leave).
+- **Everything re-locks when the screen goes off**, so an app left open and unlocked is
+  not waiting for whoever picks the device up next.
 - **Auto-lock new apps** — newly installed apps are locked automatically.
 - **Scheduled pause** — a time window (e.g. at home in the evening) where locking is
   paused; overnight windows supported.
@@ -34,8 +36,16 @@ no ads, and no tracking.
 - **Intruder selfie** — after 3 wrong attempts, the front camera silently captures a
   photo to private storage; a built-in gallery lets you review/clear them.
 - **Forgot-PIN recovery** via a security question, so you can't get locked out.
+- **Wrong-attempt lockout** — after 5 wrong attempts each further one starts a cooldown
+  that doubles from 30s up to 5 min, with a live countdown. The counter is persisted, so
+  closing the prompt or force-stopping the app does not reset it. Wrong recovery answers
+  are throttled the same way.
+- **Every screen is gated** — the home screen, settings, vault and intruder gallery each
+  require the lock, so none of them can be reached by restoring the app from Recents.
 - **Scrambled keypad** option to defeat shoulder-surfing.
-- Lock screen and vault are **`FLAG_SECURE`** (no screenshots, hidden in recents).
+- Every gated screen except the home screen is **`FLAG_SECURE`** (no screenshots, and
+  nothing readable in the recents thumbnail): lock screen, PIN/pattern setup, recovery,
+  settings, vault and the intruder gallery.
 
 ### Anti-tamper & disguise
 - **Tamper protection** — locks the Settings app + package installers (so Uninstall /
@@ -49,6 +59,8 @@ no ads, and no tracking.
 ### Experience
 - Guided **onboarding**, a full **Settings** screen, **light/dark/system themes**, a
   splash screen, and an adaptive launcher icon.
+- Haptic keypad feedback, and a home-screen prompt to lift **battery optimisation** —
+  the usual reason protection "randomly stops" on aggressive OEMs.
 
 ---
 
@@ -92,8 +104,10 @@ from the vault.
 
 ## How the core locking works
 
-1. **`AppLockService`** is a foreground service that polls **`UsageStatsManager`** about
-   every 600 ms to find the foreground package.
+1. **`AppLockService`** is a foreground service that polls **`UsageStatsManager`** every
+   200 ms to find the foreground package. Each poll only reads usage *events* newer than
+   the previous one and remembers the last app seen, because events fire on a change:
+   reading no event means "still the same app", not "unknown".
 2. When a **locked** app (or, with tamper protection, a system Settings/installer
    screen) comes to the foreground and isn't currently unlocked, the service launches
    **`LockScreenActivity`** over it (single-instance, excluded from recents, `FLAG_SECURE`).
@@ -101,12 +115,21 @@ from the vault.
    unlocked in **`LockState`** (in-memory only, so everything re-locks if the process dies).
 4. **`LockState.onTick`** keeps the current app "fresh" while it stays foreground and
    **re-locks** other apps once they've been in the background longer than the configured
-   delay.
-5. Pressing **Back** on the lock screen goes to the home screen rather than revealing the
+   delay. A just-unlocked app is held for a short grace period until it has actually been
+   seen in the foreground, so the "Immediately" delay cannot sweep the unlock away before
+   the protected app is even shown.
+5. When the **display turns off** everything re-locks at once (the delay only counts
+   background time), and polling stops until the screen comes back.
+6. Pressing **Back** on the lock screen goes to the home screen rather than revealing the
    app; pressing **Home** is unavoidable but the app re-locks on next open.
+7. If usage access or the overlay permission is revoked while running, the ongoing
+   notification says **protection is paused** instead of failing silently.
 
-The app's own UI is protected by the same `LockScreenActivity` in a "self" mode before
-`MainActivity`/`SettingsActivity` become visible.
+The app's own UI is protected by the same `LockScreenActivity` in a "self" mode: every
+private screen extends `SecureActivity`, which hides its content and shows the prompt from
+`onResume` until the lock is entered. The authenticated session covers the whole app, so
+moving between home, settings and the vault never re-prompts — it ends as soon as the app
+leaves the foreground.
 
 ---
 
@@ -129,7 +152,8 @@ All code is in `app/src/main/java/com/amerganim/lockapp/`.
 |---|---|
 | `AppLockService` | Foreground service; foreground-app polling + launches the lock screen. |
 | `LockScreenActivity` | The lock prompt: PIN/pattern + biometric + forgot + fake cover. |
-| `LockState` | In-memory unlock state and time-based re-lock bookkeeping. |
+| `LockState` | In-memory unlock state, re-lock bookkeeping, own-UI session tracking. |
+| `AttemptGuard` | Wrong-attempt counting and the escalating cooldown policy. |
 | `LockPrefs` | Non-secret settings (locked apps, toggles, timing, schedule, disguise). |
 | `BootReceiver` | Restarts protection after reboot. |
 | `NewAppReceiver` | Auto-locks newly installed apps (`PACKAGE_ADDED`). |
@@ -143,6 +167,7 @@ All code is in `app/src/main/java/com/amerganim/lockapp/`.
 | `PinPad` | Drives the numeric keypad + dots; optional **scramble**. |
 | `PatternLockView` | Custom 3×3 pattern view (drawing, intermediate dots, error state). |
 | `AppListAdapter` | RecyclerView adapter for the per-app lock list. |
+| `SecureActivity` | Base class that gates a screen behind the lock and sets `FLAG_SECURE`. |
 
 ### Privacy features
 | Component | Role |
@@ -164,6 +189,8 @@ All code is in `app/src/main/java/com/amerganim/lockapp/`.
 - **Vault media:** **`EncryptedFile`** (AES-256-GCM-HKDF) in private internal storage.
 - **Intruder photos:** JPEGs in private internal storage.
 - **Runtime unlock state:** memory only (`LockState`) — re-locks on process death.
+- **Wrong-attempt counters:** plain `SharedPreferences`, written with `commit()` so a
+  force-stop cannot clear a running cooldown.
 - **Settings/locked-app list:** plain `SharedPreferences` (`LockPrefs`) — not secret.
 
 ---
@@ -228,7 +255,9 @@ git tag v1.0.0 && git push origin v1.0.0
 ## Known limitations
 - Pressing **Home** dismisses the lock prompt (the app re-locks on next open) — a
   non-device-admin app can't intercept Home.
-- Foreground polling adds a small battery cost and up to ~600 ms latency.
+- Foreground polling costs ~3% of one CPU core while the screen is on (measured on a
+  Galaxy A15 / Android 16) for up to ~200 ms lock latency; it idles while the display is
+  off.
 - Aggressive OEMs (Xiaomi, Oppo, etc.) may kill the service — disable battery
   optimization / enable autostart for reliability.
 - It deters casual access; it is not unbeatable (ADB, Safe Mode, or a factory reset can

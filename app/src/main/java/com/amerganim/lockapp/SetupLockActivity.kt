@@ -4,14 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.amerganim.lockapp.databinding.ActivitySetupLockBinding
 
 /**
  * Lets the user pick a lock type (PIN or pattern) and set it with a confirmation
  * step. Used during onboarding and when changing/resetting the lock later.
  */
-class SetupLockActivity : AppCompatActivity() {
+class SetupLockActivity : SecureActivity() {
 
     private lateinit var binding: ActivitySetupLockBinding
     private lateinit var credential: CredentialManager
@@ -20,6 +19,13 @@ class SetupLockActivity : AppCompatActivity() {
     private var onboarding = false
     private var type = LockType.PIN
     private var firstValue: String? = null
+
+    /**
+     * Changing the lock must not be possible without proving the current one, e.g. when
+     * Android restores this screen from Recents after the process died. During first-run
+     * setup there is no credential to prove yet.
+     */
+    override fun requiresAuth(): Boolean = credential.isCredentialSet()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

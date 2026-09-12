@@ -6,105 +6,78 @@ import org.junit.Test
 
 /**
  * Unit tests for [AppLockService.shouldShowLockScreen], the pure decision behind the
- * poll loop. The regression this guards against: pressing Recents/Overview and switching
- * back to a protected app used to bypass the lock because the "lock screen was shown"
- * flag was never cleared.
+ * poll loop.
+ *
+ * The regression these guard: reaching a protected app by any route that stops the lock
+ * screen without destroying it — the Recents/Overview switcher, or switching straight to
+ * the app's task — used to leave the app usable unlocked.
  */
 class ShouldShowLockScreenTest {
 
+    private fun decide(
+        isOwnPackage: Boolean = false,
+        userLocked: Boolean = true,
+        systemLocked: Boolean = false,
+        isUnlocked: Boolean = false,
+        justLaunchedFor: Boolean = false,
+    ) = AppLockService.shouldShowLockScreen(
+        isOwnPackage = isOwnPackage,
+        userLocked = userLocked,
+        systemLocked = systemLocked,
+        isUnlocked = isUnlocked,
+        justLaunchedFor = justLaunchedFor,
+    )
+
     @Test
     fun showsLockScreenForLockedAppNotYetUnlocked() {
-        assertTrue(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = false,
-                isOwnPackage = false,
-                userLocked = true,
-                systemLocked = false,
-                isUnlocked = false,
-            )
-        )
-    }
-
-    @Test
-    fun skipsWhenLockScreenAlreadyVisible() {
-        assertFalse(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = true,
-                isOwnPackage = false,
-                userLocked = true,
-                systemLocked = false,
-                isUnlocked = false,
-            )
-        )
-    }
-
-    /**
-     * The bug scenario: user reached the protected app via the Recents switcher, which
-     * stops (does not destroy) the lock screen. Once its onStop clears lockScreenActive,
-     * the next tick must re-launch the lock screen over the app.
-     */
-    @Test
-    fun reLocksAfterRecentsSwitchClearsVisibleFlag() {
-        assertTrue(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = false,   // onStop cleared it after the switch
-                isOwnPackage = false,
-                userLocked = true,
-                systemLocked = false,
-                isUnlocked = false,         // never authenticated
-            )
-        )
+        assertTrue(decide())
     }
 
     @Test
     fun skipsAlreadyUnlockedApp() {
-        assertFalse(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = false,
-                isOwnPackage = false,
-                userLocked = true,
-                systemLocked = false,
-                isUnlocked = true,
-            )
-        )
+        assertFalse(decide(isUnlocked = true))
     }
 
     @Test
     fun skipsOwnPackage() {
-        assertFalse(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = false,
-                isOwnPackage = true,
-                userLocked = true,
-                systemLocked = false,
-                isUnlocked = false,
-            )
-        )
+        assertFalse(decide(isOwnPackage = true))
     }
 
     @Test
     fun skipsUnprotectedApp() {
-        assertFalse(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = false,
-                isOwnPackage = false,
-                userLocked = false,
-                systemLocked = false,
-                isUnlocked = false,
-            )
-        )
+        assertFalse(decide(userLocked = false))
     }
 
     @Test
     fun showsForSystemLockedPackage() {
-        assertTrue(
-            AppLockService.shouldShowLockScreen(
-                lockScreenActive = false,
-                isOwnPackage = false,
-                userLocked = false,
-                systemLocked = true,
-                isUnlocked = false,
-            )
-        )
+        assertTrue(decide(userLocked = false, systemLocked = true))
+    }
+
+    /**
+     * The bug this replaced: the decision also consulted a process-wide "the lock screen
+     * is visible" flag. Seeing a protected app in the foreground *is* the proof that the
+     * lock screen is not on top of it, so no flag may veto re-locking. Found on device —
+     * switching to the protected app's task left it open because the flag had stuck true
+     * while the biometric prompt was up.
+     */
+    @Test
+    fun reLocksWheneverTheProtectedAppIsForegroundAgain() {
+        assertTrue(decide())
+    }
+
+    @Test
+    fun doesNotRelaunchWhileTheLockScreenIsStillComingForward() {
+        assertFalse(decide(justLaunchedFor = true))
+    }
+
+    @Test
+    fun relaunchesOnceTheDebounceHasPassed() {
+        assertTrue(decide(justLaunchedFor = false))
+    }
+
+    /** An unlocked app must stay unlocked even right after a launch for another app. */
+    @Test
+    fun debounceDoesNotOverrideAnUnlockedApp() {
+        assertFalse(decide(isUnlocked = true, justLaunchedFor = true))
     }
 }

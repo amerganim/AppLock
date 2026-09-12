@@ -5,18 +5,20 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.amerganim.lockapp.databinding.ActivitySetupRecoveryBinding
 
 /**
  * Sets a security question + answer used to reset a forgotten lock. Shown at the
  * end of onboarding and reachable later from Settings.
  */
-class SetupRecoveryActivity : AppCompatActivity() {
+class SetupRecoveryActivity : SecureActivity() {
 
     private lateinit var binding: ActivitySetupRecoveryBinding
     private lateinit var credential: CredentialManager
     private var onboarding = false
+
+    /** The recovery answer can reset the lock, so it is as sensitive as the lock itself. */
+    override fun requiresAuth(): Boolean = credential.isCredentialSet()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

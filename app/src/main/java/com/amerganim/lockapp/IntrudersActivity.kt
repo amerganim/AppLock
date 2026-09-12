@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +20,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /** Gallery of captured intruder selfies, newest first. */
-class IntrudersActivity : AppCompatActivity() {
+class IntrudersActivity : SecureActivity() {
 
     private lateinit var binding: ActivityIntrudersBinding
     private val items = mutableListOf<IntruderItem>()
