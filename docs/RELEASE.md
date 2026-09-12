@@ -3,9 +3,20 @@
 ## Signing keys
 
 The release build is signed with an **upload keystore**. It is **never committed**
-(`*.keystore` and `keystore.properties` are git-ignored). Keep a safe backup — if
-you enroll in Play App Signing (recommended), a lost upload key can be reset, but
-back it up anyway.
+(`*.keystore` and `keystore.properties` are git-ignored).
+
+Play App Signing is **mandatory for apps created on Play since August 2021**, so LockApp
+gets it automatically — there is no setting to turn on beforehand. It is applied when the
+app is created and the first AAB is uploaded: `lockapp-upload.keystore` becomes the
+**upload key**, and Google generates and holds the separate **app signing key** that
+actually signs what users install. On the first upload, choose *"Let Google create and
+manage my app signing key"*; that choice cannot be changed afterwards. Confirm it landed
+under **Play Console → Release → Setup → App integrity → App signing**, which then lists
+both certificates — Google's app signing key, and the upload key whose SHA-256 is below.
+
+That makes a lost upload key recoverable (a support request to reset it) rather than
+fatal. Back it up regardless: until the first upload happens, this key is still the only
+thing that can publish this package name.
 
 - Keystore: `lockapp-upload.keystore` (repo root), alias `lockapp`.
 - Local config: `keystore.properties` (repo root):
@@ -28,7 +39,8 @@ keytool -genkeypair -v -keystore lockapp-upload.keystore -alias lockapp \
 ## Backing up the key, and checking a backup is good
 
 Losing the upload key means never shipping an update to `com.amerganim.lockapp` again
-(unless Play App Signing is enabled, in which case Google can reset the upload key). Keep
+(until the first Play upload enrols the app in Play App Signing, after which Google can
+reset a lost upload key). Keep
 at least two copies, in different places, and keep the **passwords separate from the
 keystore file** — `keystore.properties` holds them in clear text, so a copy of both
 together is a single point of compromise.

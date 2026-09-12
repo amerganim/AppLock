@@ -139,6 +139,9 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 - [ ] Permission declarations (table above)
 - [ ] Content rating questionnaire
 - [ ] Target audience & content — not directed at children
+- [ ] First upload: choose **"Let Google create and manage my app signing key"** — Play
+      App Signing is mandatory for new apps and the choice is one-way; afterwards the
+      local keystore is only the *upload* key
 - [ ] Internal testing track first, then production
 
 ## Assets
