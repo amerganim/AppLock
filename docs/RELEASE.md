@@ -25,6 +25,37 @@ keytool -genkeypair -v -keystore lockapp-upload.keystore -alias lockapp \
   -keyalg RSA -keysize 2048 -validity 10000
 ```
 
+## Backing up the key, and checking a backup is good
+
+Losing the upload key means never shipping an update to `com.amerganim.lockapp` again
+(unless Play App Signing is enabled, in which case Google can reset the upload key). Keep
+at least two copies, in different places, and keep the **passwords separate from the
+keystore file** — `keystore.properties` holds them in clear text, so a copy of both
+together is a single point of compromise.
+
+A copy is only a backup once you have opened it. Verify with:
+
+```bash
+sha256sum -c SHA256SUMS.txt
+keytool -list -v -keystore lockapp-upload.keystore -alias lockapp
+```
+
+The certificate must match what is in every shipped APK
+(`apksigner verify --print-certs app-release.apk`):
+
+| | |
+|---|---|
+| Owner | `CN=LockApp, OU=Mobile, O=amerganim, L=NA, ST=NA, C=US` |
+| Alias | `lockapp` (2048-bit RSA, valid until 28 Oct 2053) |
+| SHA-1 | `91:D8:24:F5:EB:9A:F9:97:C5:8E:B2:6A:35:C4:AE:EC:92:E7:A7:0F` |
+| SHA-256 | `9F:9F:CC:1E:3E:5C:D7:3A:67:5C:F6:0E:34:F3:70:5B:6E:2E:59:58:A3:05:E2:34:C1:64:46:08:13:B1:74:7D` |
+
+Fingerprints are public — they ship inside every APK — so recording them here is safe and
+lets a restored key be checked against a release that is already live.
+
+To restore: copy `lockapp-upload.keystore` and `keystore.properties` back into the repo
+root. Both are git-ignored.
+
 ## Build locally
 
 ```powershell
