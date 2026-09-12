@@ -19,7 +19,8 @@ enum class LockType { PIN, PATTERN }
  * hash, and the whole file is additionally encrypted at rest via
  * [EncryptedSharedPreferences].
  *
- * A pattern is encoded as its connected dot indices joined by '-', e.g. "0-1-2-5".
+ * A PIN is 4 to 8 digits; a pattern is encoded as its connected dot indices joined by
+ * '-', e.g. "0-1-2-5".
  */
 class CredentialManager(context: Context) {
 
@@ -46,12 +47,23 @@ class CredentialManager(context: Context) {
 
     fun setCredential(type: LockType, value: String) {
         val salt = newSalt()
-        prefs.edit()
+        val editor = prefs.edit()
             .putString(KEY_TYPE, type.name)
             .putString(KEY_SALT, salt.toBase64())
             .putString(KEY_HASH, hash(value, salt))
-            .apply()
+        // Remember how long the PIN is, so unlocking can check it the moment it is
+        // complete instead of needing an extra key. It is written into the same
+        // encrypted file as the hash, so the length is not readable off the device.
+        if (type == LockType.PIN) editor.putInt(KEY_PIN_LENGTH, value.length)
+        editor.apply()
     }
+
+    /**
+     * Digits in the saved PIN. Credentials saved before PINs could vary in length are
+     * all [PIN_MIN_LENGTH] digits, which is exactly what the default gives.
+     */
+    fun pinLength(): Int = prefs.getInt(KEY_PIN_LENGTH, PIN_MIN_LENGTH)
+        .coerceIn(PIN_MIN_LENGTH, PIN_MAX_LENGTH)
 
     fun verify(value: String): Boolean {
         val salt = prefs.getString(KEY_SALT, null)?.fromBase64() ?: return false
@@ -103,8 +115,13 @@ class CredentialManager(context: Context) {
         private const val KEY_REC_Q = "recovery_question"
         private const val KEY_REC_SALT = "recovery_salt"
         private const val KEY_REC_HASH = "recovery_hash"
+        private const val KEY_PIN_LENGTH = "pin_length"
 
-        const val PIN_LENGTH = 4
+        const val PIN_MIN_LENGTH = 4
+        const val PIN_MAX_LENGTH = 8
         const val MIN_PATTERN_DOTS = 4
+
+        fun isValidPinLength(length: Int): Boolean =
+            length in PIN_MIN_LENGTH..PIN_MAX_LENGTH
     }
 }

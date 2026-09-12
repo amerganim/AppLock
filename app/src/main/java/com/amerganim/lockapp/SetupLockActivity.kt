@@ -35,6 +35,7 @@ class SetupLockActivity : SecureActivity() {
         onboarding = intent.getBooleanExtra(EXTRA_ONBOARDING, false)
         type = if (credential.isCredentialSet()) credential.lockType() else LockType.PIN
 
+        // No autoSubmitLength: the length is the user's choice, so the ✓ key submits.
         pinPad = PinPad(binding.keypad, binding.dots) { value -> onValue(value) }
         binding.patternView.onPatternDetected = { indices ->
             if (indices.size < CredentialManager.MIN_PATTERN_DOTS) {
@@ -64,6 +65,9 @@ class SetupLockActivity : SecureActivity() {
         binding.title.setText(
             if (type == LockType.PIN) R.string.set_pin_title else R.string.set_pattern_title
         )
+        binding.subtitle.setText(
+            if (type == LockType.PIN) R.string.set_pin_subtitle else R.string.set_pattern_subtitle
+        )
     }
 
     private fun onValue(value: String) {
@@ -75,6 +79,10 @@ class SetupLockActivity : SecureActivity() {
             binding.title.setText(
                 if (type == LockType.PIN) R.string.confirm_pin_title
                 else R.string.confirm_pattern_title
+            )
+            binding.subtitle.setText(
+                if (type == LockType.PIN) R.string.confirm_pin_subtitle
+                else R.string.set_pattern_subtitle
             )
             pinPad.reset()
             binding.patternView.clearPattern()

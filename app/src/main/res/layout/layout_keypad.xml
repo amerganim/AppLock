@@ -19,11 +19,14 @@
     <Button android:id="@+id/btn8" style="@style/PinKey" android:text="8" />
     <Button android:id="@+id/btn9" style="@style/PinKey" android:text="9" />
 
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_horizontal" />
+    <!-- Submits a variable-length PIN. Hidden while unlocking, where the saved length
+         is known and the PIN submits itself as soon as it is complete. -->
+    <Button
+        android:id="@+id/btnOk"
+        style="@style/PinKey"
+        android:contentDescription="@string/confirm"
+        android:text="✓"
+        android:visibility="invisible" />
 
     <Button android:id="@+id/btn0" style="@style/PinKey" android:text="0" />
 

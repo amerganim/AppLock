@@ -9,7 +9,10 @@
     <string name="confirm_pin_title">Confirm your PIN</string>
     <string name="set_pattern_title">Draw a pattern</string>
     <string name="confirm_pattern_title">Draw the pattern again</string>
-    <string name="set_pin_subtitle">This protects the apps you lock.</string>
+    <string name="set_pin_subtitle">Pick 4 to 8 digits, then tap ✓.</string>
+    <string name="set_pattern_subtitle">Connect at least 4 dots.</string>
+    <string name="confirm_pin_subtitle">Enter the same PIN again.</string>
+    <string name="confirm">Confirm</string>
     <string name="pin_mismatch">PINs did not match. Try again.</string>
     <string name="pattern_mismatch">Patterns did not match. Try again.</string>
     <string name="pattern_too_short">Connect at least 4 dots.</string>

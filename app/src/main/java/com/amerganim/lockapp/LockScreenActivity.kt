@@ -36,6 +36,7 @@ class LockScreenActivity : AppCompatActivity() {
     private val isSelf get() = targetPackage == packageName
 
     private var builtType: LockType? = null
+    private var builtPinLength = 0
     private var biometricPromptShowing = false
     private var cooldownJob: Job? = null
 
@@ -116,8 +117,17 @@ class LockScreenActivity : AppCompatActivity() {
         binding.title.setText(if (pin) R.string.enter_pin_title else R.string.enter_pattern_title)
 
         if (pin) {
-            if (pinPad == null) {
-                pinPad = PinPad(binding.keypad, binding.dots, prefs.scrambleKeypad) { verify(it) }
+            // The saved PIN is checked as soon as it is that many digits long. Rebuild if
+            // the length changed under us, e.g. via the "Forgot?" reset flow.
+            val length = credential.pinLength()
+            if (pinPad == null || builtPinLength != length) {
+                pinPad = PinPad(
+                    keypad = binding.keypad,
+                    dots = binding.dots,
+                    scramble = prefs.scrambleKeypad,
+                    autoSubmitLength = length,
+                ) { verify(it) }
+                builtPinLength = length
             }
             pinPad?.reset()
         } else {
