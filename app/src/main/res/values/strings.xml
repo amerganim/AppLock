@@ -124,6 +124,9 @@
     <string name="fake_cover_title">Fake cover</string>
     <string name="fake_cover_desc">Show a fake \"keeps stopping\" screen over the lock. Long-press it to reveal the real PIN/pattern.</string>
     <string name="fake_message">%1$s keeps stopping</string>
+    <string name="recents_lock_title">Lock the Recents screen</string>
+    <string name="recents_lock_desc">Ask for your lock before the task switcher is shown, so previews of locked apps stay hidden. Android will not let any app blank a single preview, so this hides every app\'s preview, not just locked ones. Some phones build Recents into the home screen, where this has no effect.</string>
+    <string name="recents_screen">Recent apps</string>
     <string name="fake_close">Close app</string>
     <string name="fake_app_info">App info</string>
     <string name="privacy_policy">Privacy policy</string>

@@ -57,6 +57,11 @@ no ads, and no tracking.
   or Notes app.
 - **Fake cover** — show a fake "*\<app\> keeps stopping*" crash dialog over the lock;
   a secret **long-press** reveals the real PIN/pattern.
+- **Lock the Recents screen** (optional, off by default) — require the lock before the
+  task switcher appears. Android snapshots each app's task itself and no app may blank
+  another app's preview, so this is all-or-nothing: it hides every preview, not only
+  locked ones, and does nothing on phones where Recents is a state of the launcher
+  activity rather than its own activity.
 
 ### Experience
 - Guided **onboarding**, a full **Settings** screen, **light/dark/system themes**, a

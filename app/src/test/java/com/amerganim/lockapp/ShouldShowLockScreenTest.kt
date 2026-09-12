@@ -18,12 +18,14 @@ class ShouldShowLockScreenTest {
         isOwnPackage: Boolean = false,
         userLocked: Boolean = true,
         systemLocked: Boolean = false,
+        recentsLocked: Boolean = false,
         isUnlocked: Boolean = false,
         justLaunchedFor: Boolean = false,
     ) = AppLockService.shouldShowLockScreen(
         isOwnPackage = isOwnPackage,
         userLocked = userLocked,
         systemLocked = systemLocked,
+        recentsLocked = recentsLocked,
         isUnlocked = isUnlocked,
         justLaunchedFor = justLaunchedFor,
     )
@@ -51,6 +53,11 @@ class ShouldShowLockScreenTest {
     @Test
     fun showsForSystemLockedPackage() {
         assertTrue(decide(userLocked = false, systemLocked = true))
+    }
+
+    @Test
+    fun showsForTheTaskSwitcherWhenThatIsLocked() {
+        assertTrue(decide(userLocked = false, recentsLocked = true))
     }
 
     /**

@@ -35,6 +35,9 @@ class LockScreenActivity : AppCompatActivity() {
     private lateinit var targetPackage: String
     private val isSelf get() = targetPackage == packageName
 
+    /** Shown over the task switcher rather than over an app (opt-in setting). */
+    private var isRecents = false
+
     private var builtType: LockType? = null
     private var builtPinLength = 0
     private var biometricPromptShowing = false
@@ -51,6 +54,7 @@ class LockScreenActivity : AppCompatActivity() {
         prefs = LockPrefs(this)
 
         targetPackage = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
+        isRecents = intent.getBooleanExtra(EXTRA_RECENTS, false)
 
         // Nothing to verify against (app data cleared, setup never finished): fail open
         // rather than trapping the user behind a prompt no input can satisfy.
@@ -201,17 +205,23 @@ class LockScreenActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         val requested = intent.getStringExtra(EXTRA_PACKAGE) ?: packageName
+        val requestedRecents = intent.getBooleanExtra(EXTRA_RECENTS, false)
         // Re-delivery for the app we are already prompting for (the service can launch us
         // again while we come forward) must not wipe a PIN the user is halfway through.
-        if (requested == targetPackage) return
+        if (requested == targetPackage && requestedRecents == isRecents) return
         targetPackage = requested
+        isRecents = requestedRecents
         bindHeader()
         buildInput()
         showStatus(null)
     }
 
     private fun bindHeader() {
-        if (isSelf) {
+        if (isRecents) {
+            // The package here is the launcher, whose name and icon would be misleading.
+            binding.appName.setText(R.string.recents_screen)
+            binding.appIcon.setImageResource(R.drawable.ic_lock)
+        } else if (isSelf) {
             binding.appName.text = ""
             binding.appIcon.setImageResource(R.drawable.ic_lock)
         } else {
@@ -330,6 +340,7 @@ class LockScreenActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_PACKAGE = "extra_package"
+        const val EXTRA_RECENTS = "extra_recents"
         private const val COUNTDOWN_TICK_MS = 500L
         private const val DISABLED_ALPHA = 0.35f
     }

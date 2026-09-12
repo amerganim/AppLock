@@ -172,6 +172,17 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/recentsRow" style="@style/SettingsRow">
+                <LinearLayout style="@style/SettingsRowText">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/recents_lock_title" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/recents_lock_desc" />
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/recentsSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
             <TextView style="@style/SettingsHeader" android:text="@string/section_about" />
 
             <LinearLayout android:id="@+id/rowPrivacy" style="@style/SettingsRow">

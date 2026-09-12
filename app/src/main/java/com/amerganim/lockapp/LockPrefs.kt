@@ -75,6 +75,15 @@ class LockPrefs(context: Context) {
         get() = prefs.getString(KEY_DISGUISE, "LauncherDefault") ?: "LauncherDefault"
         set(value) = prefs.edit().putString(KEY_DISGUISE, value).apply()
 
+    /**
+     * Require the lock before the task switcher is shown. Android snapshots each app's
+     * task itself and no app can blank another app's preview, so this covers the whole
+     * switcher or nothing. Off by default.
+     */
+    var lockRecentsScreen: Boolean
+        get() = prefs.getBoolean(KEY_LOCK_RECENTS, false)
+        set(value) = prefs.edit().putBoolean(KEY_LOCK_RECENTS, value).apply()
+
     /** Pause app locking during a daily time window (e.g. when you're at home). */
     var scheduleEnabled: Boolean
         get() = prefs.getBoolean(KEY_SCHED_ON, false)
@@ -133,6 +142,7 @@ class LockPrefs(context: Context) {
         private const val KEY_DISGUISE = "disguise_alias"
         private const val KEY_FAKE_COVER = "fake_cover"
         private const val KEY_VAULT_RM_ORIG = "vault_remove_original"
+        private const val KEY_LOCK_RECENTS = "lock_recents_screen"
         private const val KEY_SCHED_ON = "schedule_enabled"
         private const val KEY_SCHED_START = "schedule_start_min"
         private const val KEY_SCHED_END = "schedule_end_min"

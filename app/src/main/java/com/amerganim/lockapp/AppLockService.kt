@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -52,6 +53,10 @@ class AppLockService : Service() {
      * app keep its unlock past the configured delay.
      */
     private var lastForegroundPkg: String? = null
+    private var lastForegroundClass: String? = null
+
+    /** The home/launcher package, which also hosts the task switcher on most devices. */
+    private var launcherPackage: String? = null
 
     /** Last lock-screen launch, so it is not launched again before it can come forward. */
     private var lastLaunchPkg: String? = null
@@ -86,6 +91,7 @@ class AppLockService : Service() {
         usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         prefs = LockPrefs(this)
         screenOn = getSystemService(PowerManager::class.java)?.isInteractive ?: true
+        launcherPackage = resolveLauncherPackage()
         ContextCompat.registerReceiver(
             this,
             screenReceiver,
@@ -141,17 +147,24 @@ class AppLockService : Service() {
             prefs.isLocked(current)
         val systemLocked = prefs.antiUninstallEnabled &&
             LockPrefs.PROTECTED_SYSTEM_PACKAGES.contains(current)
+        // Opt-in: the task switcher shows a preview of every app, and Android will not
+        // let us blank the preview of a locked one, so the only lever we have is the
+        // switcher as a whole.
+        val recentsLocked = prefs.protectionEnabled && !prefs.isLockingPausedNow() &&
+            prefs.lockRecentsScreen &&
+            isRecentsScreen(current, lastForegroundClass, launcherPackage)
 
         if (shouldShowLockScreen(
                 isOwnPackage = current == packageName,
                 userLocked = userLocked,
                 systemLocked = systemLocked,
+                recentsLocked = recentsLocked,
                 isUnlocked = LockState.isUnlocked(current),
                 justLaunchedFor = current == lastLaunchPkg &&
                     now - lastLaunchAt < RELAUNCH_DEBOUNCE_MS,
             )
         ) {
-            showLockScreen(current, now)
+            showLockScreen(current, now, recents = recentsLocked)
         }
     }
 
@@ -176,6 +189,7 @@ class AppLockService : Service() {
             events.getNextEvent(event)
             if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                 lastForegroundPkg = event.packageName
+                lastForegroundClass = event.className
             }
         }
         return lastForegroundPkg
@@ -197,12 +211,20 @@ class AppLockService : Service() {
         return ok
     }
 
-    private fun showLockScreen(pkg: String, now: Long) {
+    private fun resolveLauncherPackage(): String? = runCatching {
+        packageManager.resolveActivity(
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
+            PackageManager.MATCH_DEFAULT_ONLY
+        )?.activityInfo?.packageName
+    }.getOrNull()
+
+    private fun showLockScreen(pkg: String, now: Long, recents: Boolean = false) {
         lastLaunchPkg = pkg
         lastLaunchAt = now
         val intent = Intent(this, LockScreenActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
             putExtra(LockScreenActivity.EXTRA_PACKAGE, pkg)
+            putExtra(LockScreenActivity.EXTRA_RECENTS, recents)
         }
         // A background activity start relies on the overlay permission; if it was revoked
         // between our check and here, do not take the process down.
@@ -274,6 +296,7 @@ class AppLockService : Service() {
             isOwnPackage: Boolean,
             userLocked: Boolean,
             systemLocked: Boolean,
+            recentsLocked: Boolean,
             isUnlocked: Boolean,
             justLaunchedFor: Boolean,
         ): Boolean {
@@ -281,8 +304,30 @@ class AppLockService : Service() {
             if (isOwnPackage) return false
             // Launched for this app a moment ago; give it time to appear.
             if (justLaunchedFor) return false
-            return (userLocked || systemLocked) && !isUnlocked
+            return (userLocked || systemLocked || recentsLocked) && !isUnlocked
         }
+
+        /**
+         * Whether the foreground screen is the task switcher.
+         *
+         * Both halves matter. Only the launcher (or SystemUI, which hosts the switcher on
+         * some devices) may own it, because the *home screen* shares the launcher package
+         * and matching on the package alone would lock the home screen too. And the
+         * activity name has to read like an overview screen — note "recents" rather than
+         * "recent", so Samsung's FromRecentActivity does not match.
+         *
+         * Where the switcher is a state of the launcher activity rather than an activity
+         * of its own (Pixel launchers), no separate event is ever reported and this
+         * correctly stays false: the toggle then does nothing on that device.
+         */
+        fun isRecentsScreen(pkg: String, className: String?, launcherPackage: String?): Boolean {
+            if (pkg != launcherPackage && pkg != SYSTEM_UI_PACKAGE) return false
+            val name = className?.lowercase() ?: return false
+            return RECENTS_CLASS_HINTS.any { name.contains(it) }
+        }
+
+        private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
+        private val RECENTS_CLASS_HINTS = listOf("recents", "overview", "quickstep")
 
         private const val TAG = "AppLockService"
         private const val CHANNEL_ID = "app_lock_service"
