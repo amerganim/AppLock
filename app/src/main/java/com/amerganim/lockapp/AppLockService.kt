@@ -15,6 +15,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.os.UserManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -36,14 +37,40 @@ class AppLockService : Service() {
     private var running = false
 
     private lateinit var usageStatsManager: UsageStatsManager
-    private lateinit var prefs: LockPrefs
 
-    /** Polling is pointless while the display is off, and costs battery. */
+    /**
+     * Null until the user has unlocked the device after a reboot. The service starts
+     * before that (see [BootReceiver]) so protection is ready the instant they do, but
+     * the settings live in credential-encrypted storage and cannot be read until then.
+     */
+    private var prefs: LockPrefs? = null
+
+    /**
+     * Polling is pointless while the display is off, and costs battery. Kept only to
+     * pace the loop — whether to do any work is read from the power manager on each
+     * tick, because a cached flag can stick: if the service starts during boot in the
+     * instant before the display is interactive, no ACTION_SCREEN_ON ever follows (the
+     * screen was already coming on) and protection would stay asleep for the session.
+     */
     @Volatile
     private var screenOn = true
 
-    /** End of the last usage-events query, so each poll only reads what is new. */
-    private var lastEventQueryEnd = 0L
+    private val powerManager: PowerManager? by lazy { getSystemService(PowerManager::class.java) }
+
+    private fun isInteractive(): Boolean = powerManager?.isInteractive ?: true
+
+    /**
+     * Timestamp of the newest usage event already processed, which is what each poll
+     * reads forward from.
+     *
+     * Deliberately not the time of the last *query*. Events do not always become
+     * readable the instant they happen — after a reboot, with the system still busy,
+     * one can surface seconds late — and a window anchored to the clock will by then
+     * have swept past that event's timestamp and lose it permanently, leaving the
+     * service convinced the launcher is still in front. Anchoring to the last event
+     * actually seen means the window simply widens until the event turns up.
+     */
+    private var lastEventTime = 0L
 
     /**
      * Last package seen moving to the foreground. Usage events only fire on a *change*,
@@ -65,6 +92,13 @@ class AppLockService : Service() {
     private var permissionsOk = true
     private var ticksSincePermissionCheck = PERMISSION_CHECK_TICKS
 
+    /** Fires once, when the user first unlocks the device after a reboot. */
+    private val userUnlockedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_USER_UNLOCKED) openCredentialStorage()
+        }
+    }
+
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
@@ -80,7 +114,7 @@ class AppLockService : Service() {
                 Intent.ACTION_SCREEN_ON -> {
                     screenOn = true
                     // Re-derive the foreground app from a fresh window of events.
-                    lastEventQueryEnd = 0L
+                    lastEventTime = 0L
                 }
             }
         }
@@ -89,8 +123,16 @@ class AppLockService : Service() {
     override fun onCreate() {
         super.onCreate()
         usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        prefs = LockPrefs(this)
-        screenOn = getSystemService(PowerManager::class.java)?.isInteractive ?: true
+        screenOn = isInteractive()
+        openCredentialStorage()
+        if (prefs == null) {
+            ContextCompat.registerReceiver(
+                this,
+                userUnlockedReceiver,
+                IntentFilter(Intent.ACTION_USER_UNLOCKED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        }
         launcherPackage = resolveLauncherPackage()
         ContextCompat.registerReceiver(
             this,
@@ -124,11 +166,20 @@ class AppLockService : Service() {
     }
 
     private fun tick() {
+        // Still waiting for the user to unlock the device after a reboot. Nothing can be
+        // opened behind the keyguard, so there is nothing to protect yet either. Retry
+        // here as well as on the broadcast, so a missed ACTION_USER_UNLOCKED cannot leave
+        // protection switched off for the rest of the session.
+        val prefs = prefs ?: run {
+            openCredentialStorage()
+            return
+        }
         // Nothing left to protect (both switches off) — stop instead of polling forever.
         if (!prefs.protectionEnabled && !prefs.antiUninstallEnabled) {
             stopSelf()
             return
         }
+        screenOn = isInteractive()
         if (!screenOn) return
         // Usage access or the overlay permission can be revoked while we run; without
         // them the lock screen silently never appears, so surface it in the notification.
@@ -177,16 +228,12 @@ class AppLockService : Service() {
     // constant and only exists from API 29 — this app supports API 26.
     @Suppress("DEPRECATION")
     private fun foregroundPackage(now: Long): String? {
-        val begin = if (lastEventQueryEnd == 0L) {
-            now - INITIAL_LOOKBACK_MS
-        } else {
-            lastEventQueryEnd - EVENT_OVERLAP_MS
-        }
-        lastEventQueryEnd = now
+        val begin = queryWindowStart(lastEventTime, now)
         val events = usageStatsManager.queryEvents(begin, now)
         val event = UsageEvents.Event()
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
+            if (event.timeStamp > lastEventTime) lastEventTime = event.timeStamp
             if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                 lastForegroundPkg = event.packageName
                 lastForegroundClass = event.className
@@ -265,10 +312,24 @@ class AppLockService : Service() {
             .build()
     }
 
+    /**
+     * Read the settings, once credential-encrypted storage is available. Called on start
+     * and again when the user unlocks the device, whichever comes first.
+     */
+    private fun openCredentialStorage() {
+        if (prefs != null) return
+        val unlocked = getSystemService(UserManager::class.java)?.isUserUnlocked ?: true
+        if (!unlocked) return
+        prefs = runCatching { LockPrefs(this).also { it.syncBootMirror() } }
+            .onFailure { Log.w(TAG, "Settings not readable yet", it) }
+            .getOrNull()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         running = false
         runCatching { unregisterReceiver(screenReceiver) }
+        runCatching { unregisterReceiver(userUnlockedReceiver) }
         scope.cancel()
     }
 
@@ -329,6 +390,23 @@ class AppLockService : Service() {
         private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
         private val RECENTS_CLASS_HINTS = listOf("recents", "overview", "quickstep")
 
+        /**
+         * Where the next usage-events query should start reading from.
+         *
+         * Anchored to [lastEventTime], the newest event already processed — never to the
+         * clock. Events can surface later than they happened (seconds late on a busy
+         * device just after boot); a clock-anchored window would already have moved past
+         * such an event's timestamp and would miss it for good, leaving the service
+         * believing the launcher is still in front and the protected app unlocked.
+         * Anchored this way the window simply widens until the event appears.
+         */
+        fun queryWindowStart(lastEventTime: Long, now: Long): Long =
+            if (lastEventTime == 0L) {
+                now - INITIAL_LOOKBACK_MS
+            } else {
+                maxOf(lastEventTime + 1, now - MAX_LOOKBACK_MS)
+            }
+
         private const val TAG = "AppLockService"
         private const val CHANNEL_ID = "app_lock_service"
         private const val NOTIF_ID = 1
@@ -340,11 +418,19 @@ class AppLockService : Service() {
         /** While the display is off the loop only wakes up to notice it came back. */
         private const val IDLE_POLL_INTERVAL_MS = 1_000L
 
-        /** Window for the first query (and the first one after the screen comes back). */
-        private const val INITIAL_LOOKBACK_MS = 10_000L
+        /**
+         * Window for the first query (and the first one after the screen comes back).
+         *
+         * Generous on purpose: after a reboot the service cannot start until the system
+         * wakes it, and a protected app opened during that gap is already in the
+         * foreground by then. Its "moved to foreground" event is the only way to notice
+         * it, so the first query has to reach back far enough to still find it and lock
+         * the app retroactively.
+         */
+        const val INITIAL_LOOKBACK_MS = 120_000L
 
-        /** Re-read a little before the last query so no event slips between polls. */
-        private const val EVENT_OVERLAP_MS = 1_500L
+        /** Cap on how far back a poll reads when no new events are turning up. */
+        const val MAX_LOOKBACK_MS = 120_000L
 
         /** Re-check usage access / overlay roughly every 5 seconds of polling. */
         private const val PERMISSION_CHECK_TICKS = 25

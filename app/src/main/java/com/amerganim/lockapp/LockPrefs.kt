@@ -2,12 +2,14 @@ package com.amerganim.lockapp
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 
 /** Non-secret settings: which packages are locked, and whether protection is enabled. */
 class LockPrefs(context: Context) {
 
-    private val prefs = context.applicationContext
-        .getSharedPreferences("app_lock_prefs", Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+
+    private val prefs = appContext.getSharedPreferences("app_lock_prefs", Context.MODE_PRIVATE)
 
     fun getLockedApps(): Set<String> =
         // getStringSet returns a shared instance; copy it before use.
@@ -23,12 +25,29 @@ class LockPrefs(context: Context) {
 
     var protectionEnabled: Boolean
         get() = prefs.getBoolean(KEY_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_ENABLED, value).apply()
+        set(value) {
+            prefs.edit().putBoolean(KEY_ENABLED, value).apply()
+            syncBootMirror()
+        }
 
     /** When on, the Settings app and package installers are locked too (anti-tamper). */
     var antiUninstallEnabled: Boolean
         get() = prefs.getBoolean(KEY_ANTI_UNINSTALL, false)
-        set(value) = prefs.edit().putBoolean(KEY_ANTI_UNINSTALL, value).apply()
+        set(value) {
+            prefs.edit().putBoolean(KEY_ANTI_UNINSTALL, value).apply()
+            syncBootMirror()
+        }
+
+    /**
+     * Copy "is protection wanted at all" into device-protected storage, which is readable
+     * before the user has unlocked the device after a reboot. Everything else stays in
+     * credential-encrypted storage, where it is only readable once they have.
+     */
+    fun syncBootMirror() {
+        bootPrefs(appContext).edit()
+            .putBoolean(KEY_BOOT_NEEDED, protectionEnabled || antiUninstallEnabled)
+            .apply()
+    }
 
     /** When on (and hardware is enrolled), the lock screen offers fingerprint/face unlock. */
     var biometricEnabled: Boolean
@@ -146,6 +165,21 @@ class LockPrefs(context: Context) {
         private const val KEY_SCHED_ON = "schedule_enabled"
         private const val KEY_SCHED_START = "schedule_start_min"
         private const val KEY_SCHED_END = "schedule_end_min"
+
+        private const val BOOT_PREFS = "app_lock_boot"
+        private const val KEY_BOOT_NEEDED = "protection_needed"
+
+        private fun bootPrefs(context: Context): SharedPreferences =
+            context.applicationContext.createDeviceProtectedStorageContext()
+                .getSharedPreferences(BOOT_PREFS, Context.MODE_PRIVATE)
+
+        /**
+         * Whether protection should be started, answerable while the device is still
+         * locked after a reboot. [syncBootMirror] keeps it current.
+         */
+        fun protectionNeededAtBoot(context: Context): Boolean =
+            runCatching { bootPrefs(context).getBoolean(KEY_BOOT_NEEDED, false) }
+                .getOrDefault(false)
 
         /** Wrong attempts before an intruder selfie is captured. */
         const val INTRUDER_THRESHOLD = 3

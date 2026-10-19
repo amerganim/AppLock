@@ -163,6 +163,7 @@
 
         <service
             android:name=".AppLockService"
+            android:directBootAware="true"
             android:exported="false"
             android:foregroundServiceType="specialUse">
             <property
@@ -170,8 +171,11 @@
                 android:value="App lock keeps watch for protected apps being opened so it can prompt for a PIN." />
         </service>
 
+        <!-- Direct-boot aware so LOCKED_BOOT_COMPLETED wakes it as soon as the system is
+             up, rather than waiting in the queue every app shares for BOOT_COMPLETED. -->
         <receiver
             android:name=".BootReceiver"
+            android:directBootAware="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
