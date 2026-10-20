@@ -3,198 +3,269 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="@color/ground"
+    android:orientation="vertical"
+    android:paddingTop="20dp">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="@string/settings_title"
-        app:titleTextColor="@color/white" />
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_chevron_left"
+            app:tint="@color/text_secondary" />
+
+        <TextView
+            style="@style/ScreenTitle"
+            android:layout_marginStart="4dp"
+            android:text="@string/settings_title" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="24dp">
+            android:paddingBottom="28dp">
 
             <TextView style="@style/SettingsHeader" android:text="@string/section_security" />
 
-            <LinearLayout android:id="@+id/rowChangeLock" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/change_lock" />
-                    <TextView android:id="@+id/lockTypeSubtitle" style="@style/SettingsRowSubtitle" />
-                </LinearLayout>
-            </LinearLayout>
+            <LinearLayout style="@style/CardGroup">
 
-            <LinearLayout android:id="@+id/rowRecovery" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/recovery_question_title" />
-                    <TextView android:id="@+id/recoverySubtitle" style="@style/SettingsRowSubtitle" />
+                <LinearLayout android:id="@+id/rowChangeLock" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/change_lock" />
+                        <TextView android:id="@+id/lockTypeSubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout android:id="@+id/rowAutolock" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/autolock_title" />
-                    <TextView android:id="@+id/autolockSubtitle" style="@style/SettingsRowSubtitle" />
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/rowRecovery" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/recovery_question_title" />
+                        <TextView android:id="@+id/recoverySubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout android:id="@+id/biometricRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/biometric_unlock" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/biometric_unlock_desc" />
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/rowAutolock" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/autolock_title" />
+                        <TextView android:id="@+id/autolockSubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
                 </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/biometricSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
 
-            <LinearLayout android:id="@+id/scrambleRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/scramble_title" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/scramble_desc" />
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/biometricRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/biometric_unlock" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/biometric_unlock_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/biometricSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/scrambleSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
 
-            <LinearLayout android:id="@+id/autolockNewRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/autolock_new_title" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/autolock_new_desc" />
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/scrambleRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/scramble_title" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/scramble_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/scrambleSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/autolockNewSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
 
-            <LinearLayout android:id="@+id/intruderRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/intruder_title" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/intruder_desc" />
-                </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/intruderSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                <View style="@style/RowDivider" />
 
-            <LinearLayout android:id="@+id/intruderPhotosRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/intruder_photos" />
-                    <TextView android:id="@+id/intruderPhotosSubtitle" style="@style/SettingsRowSubtitle" />
+                <LinearLayout android:id="@+id/autolockNewRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/autolock_new_title" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/autolock_new_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/autolockNewSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
 
             <TextView style="@style/SettingsHeader" android:text="@string/section_private" />
 
-            <LinearLayout android:id="@+id/vaultRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/vault_title" />
-                    <TextView android:id="@+id/vaultSubtitle" style="@style/SettingsRowSubtitle"
-                        android:text="@string/vault_desc" />
+            <LinearLayout style="@style/CardGroup">
+
+                <LinearLayout android:id="@+id/vaultRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/vault_title" />
+                        <TextView android:id="@+id/vaultSubtitle" style="@style/SettingsRowSubtitle"
+                            android:text="@string/vault_desc" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/intruderRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/intruder_title" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/intruder_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/intruderSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/intruderPhotosRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/intruder_photos" />
+                        <TextView android:id="@+id/intruderPhotosSubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView style="@style/SettingsHeader" android:text="@string/section_concealment" />
+
+            <LinearLayout style="@style/CardGroup">
+
+                <LinearLayout android:id="@+id/rowDisguise" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/disguise_title" />
+                        <TextView android:id="@+id/disguiseSubtitle" style="@style/SettingsRowSubtitle"
+                            android:text="@string/disguise_desc" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/fakeCoverRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/fake_cover_title" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/fake_cover_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/fakeCoverSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/recentsRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/recents_lock_title" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/recents_lock_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/recentsSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
 
             <TextView style="@style/SettingsHeader" android:text="@string/section_tamper" />
 
-            <LinearLayout android:id="@+id/tamperRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/tamper_switch" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/tamper_desc" />
-                    <TextView android:id="@+id/adminStatus" style="@style/SettingsRowSubtitle"
-                        android:textStyle="italic" android:text="@string/admin_inactive" />
+            <LinearLayout style="@style/CardGroup">
+
+                <LinearLayout android:id="@+id/tamperRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/tamper_switch" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/tamper_desc" />
+                        <TextView android:id="@+id/adminStatus" style="@style/SettingsRowSubtitle"
+                            android:textColor="@color/text_tertiary"
+                            android:text="@string/admin_inactive" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/tamperSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/tamperSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <TextView style="@style/SettingsHeader" android:text="@string/section_schedule" />
 
-            <LinearLayout android:id="@+id/scheduleRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/schedule_title" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/schedule_desc" />
-                </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/scheduleSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+            <LinearLayout style="@style/CardGroup">
 
-            <LinearLayout android:id="@+id/scheduleWindowRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/schedule_window_title" />
-                    <TextView android:id="@+id/scheduleWindowSubtitle" style="@style/SettingsRowSubtitle" />
+                <LinearLayout android:id="@+id/scheduleRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/schedule_title" />
+                        <TextView style="@style/SettingsRowSubtitle" android:text="@string/schedule_desc" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/scheduleSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <LinearLayout android:id="@+id/scheduleWindowRow" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/schedule_window_title" />
+                        <TextView android:id="@+id/scheduleWindowSubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
                 </LinearLayout>
             </LinearLayout>
 
             <TextView style="@style/SettingsHeader" android:text="@string/section_appearance" />
 
-            <LinearLayout android:id="@+id/rowTheme" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/theme_title" />
-                    <TextView android:id="@+id/themeSubtitle" style="@style/SettingsRowSubtitle" />
-                </LinearLayout>
-            </LinearLayout>
+            <LinearLayout style="@style/CardGroup">
 
-            <LinearLayout android:id="@+id/rowDisguise" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/disguise_title" />
-                    <TextView android:id="@+id/disguiseSubtitle" style="@style/SettingsRowSubtitle"
-                        android:text="@string/disguise_desc" />
+                <LinearLayout android:id="@+id/rowTheme" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/theme_title" />
+                        <TextView android:id="@+id/themeSubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
                 </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout android:id="@+id/fakeCoverRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/fake_cover_title" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/fake_cover_desc" />
-                </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/fakeCoverSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout android:id="@+id/recentsRow" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/recents_lock_title" />
-                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/recents_lock_desc" />
-                </LinearLayout>
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/recentsSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <TextView style="@style/SettingsHeader" android:text="@string/section_about" />
 
-            <LinearLayout android:id="@+id/rowPrivacy" style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/privacy_policy" />
-                </LinearLayout>
-            </LinearLayout>
+            <LinearLayout style="@style/CardGroup">
 
-            <LinearLayout style="@style/SettingsRow">
-                <LinearLayout style="@style/SettingsRowText">
-                    <TextView style="@style/SettingsRowTitle" android:text="@string/version" />
-                    <TextView android:id="@+id/versionSubtitle" style="@style/SettingsRowSubtitle" />
+                <LinearLayout android:id="@+id/rowPrivacy" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/privacy_policy" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <LinearLayout style="@style/SettingsRow" android:clickable="false" android:focusable="false">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/version" />
+                        <TextView android:id="@+id/versionSubtitle" style="@style/SettingsRowSubtitle" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

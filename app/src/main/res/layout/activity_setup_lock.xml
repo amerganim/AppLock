@@ -1,42 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
+    android:background="@color/ground"
     android:orientation="vertical"
-    android:paddingHorizontal="24dp">
-
-    <ImageView
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="12dp"
-        android:src="@drawable/ic_lock"
-        app:tint="@color/primary" />
+    android:paddingHorizontal="24dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="30dp">
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/choose_lock_title"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        style="@style/ScreenTitle"
+        android:layout_marginTop="16dp"
+        android:text="@string/set_pin_title"
+        android:textSize="26sp" />
 
     <TextView
         android:id="@+id/subtitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:lineSpacingMultiplier="1.45"
         android:text="@string/set_pin_subtitle"
+        android:textColor="@color/text_secondary"
         android:textSize="14sp" />
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/typeToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="22dp"
         app:selectionRequired="true"
         app:singleSelection="true">
 
@@ -44,18 +40,23 @@
             android:id="@+id/btnTypePin"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/lock_type_pin" />
+            android:layout_height="44dp"
+            android:paddingHorizontal="26dp"
+            android:text="@string/lock_type_pin"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTypePattern"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/lock_type_pattern" />
+            android:layout_height="44dp"
+            android:paddingHorizontal="26dp"
+            android:text="@string/lock_type_pattern"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <!-- PIN entry -->
     <LinearLayout
         android:id="@+id/pinGroup"
         android:layout_width="match_parent"
@@ -69,7 +70,7 @@
             layout="@layout/view_pin_dots"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp" />
+            android:layout_marginTop="34dp" />
 
         <Space
             android:layout_width="match_parent"
@@ -81,15 +82,15 @@
             layout="@layout/layout_keypad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginHorizontal="-6dp" />
     </LinearLayout>
 
-    <!-- Pattern entry -->
     <com.amerganim.lockapp.PatternLockView
         android:id="@+id/patternView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginVertical="16dp"
         android:layout_weight="1"
-        android:layout_marginVertical="24dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="gone" />
 </LinearLayout>

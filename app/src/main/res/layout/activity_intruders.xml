@@ -3,17 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/ground"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
+        android:background="@color/ground"
         app:menu="@menu/menu_intruders"
-        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIcon="@drawable/ic_chevron_left"
+        app:navigationIconTint="@color/text_secondary"
         app:title="@string/intruder_photos"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/text_primary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="4dp"
+        android:lineSpacingMultiplier="1.5"
+        android:text="@string/intruder_explainer"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -24,15 +36,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="8dp" />
+            android:paddingHorizontal="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="24dp"
+            android:scrollbars="none" />
 
         <TextView
             android:id="@+id/empty"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingHorizontal="48dp"
             android:text="@string/intruder_empty"
-            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

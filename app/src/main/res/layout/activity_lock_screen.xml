@@ -6,70 +6,123 @@
     android:layout_height="match_parent">
 
   <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/lock_bg"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:paddingHorizontal="24dp">
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.8" />
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@color/lock_bg"
+      android:gravity="center_horizontal"
+      android:orientation="vertical"
+      android:paddingHorizontal="24dp"
+      android:paddingTop="64dp"
+      android:paddingBottom="30dp">
 
     <ImageView
         android:id="@+id/appIcon"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/ic_lock"
-        app:tint="@color/white" />
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_lock_line"
+        app:tint="@color/lock_text" />
+
+    <!-- The locked app's own name, set small and in caps: the title below says what to
+         do, so this only has to say which app is asking. -->
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:letterSpacing="0.14"
+        android:textAllCaps="true"
+        android:textColor="@color/lock_text_tertiary"
+        android:textSize="12sp"
+        tools:text="Messages" />
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:letterSpacing="-0.015"
         android:text="@string/enter_pin_title"
-        android:textColor="@color/white"
-        android:textSize="22sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/appName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="#B0BEC5"
-        android:textSize="15sp" />
-
-    <!-- Wrong-attempt feedback and the lockout countdown. Kept separate from the app
-         name above, which used to be overwritten by the error message. -->
-    <TextView
-        android:id="@+id/statusMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:textColor="#FF8A80"
-        android:textSize="14sp"
-        android:visibility="invisible"
-        tools:text="Try again in 0:30" />
+        android:textColor="@color/lock_text"
+        android:fontFamily="@font/instrument_sans_medium"
+        android:textSize="26sp" />
 
     <include
         android:id="@+id/dots"
         layout="@layout/view_pin_dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp" />
+        android:layout_marginTop="32dp" />
+
+    <!-- Wrong-attempt feedback and the lockout countdown. Kept separate from the app
+         name above, which used to be overwritten by the error message. -->
+    <TextView
+        android:id="@+id/statusMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:textColor="@color/lock_error"
+        android:textSize="13sp"
+        android:visibility="invisible"
+        tools:text="Too many wrong attempts. Try again in 0:30" />
+
+    <!-- Shown instead of the keypad while a wrong-attempt cooldown runs. Amber, not
+         red: this is a wait, not a failure, and the user has done nothing wrong if it
+         is their own phone. -->
+    <LinearLayout
+        android:id="@+id/lockoutCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/bg_lock_warning"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_clock"
+            app:tint="@color/lock_warning" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/lockoutCountdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/instrument_sans_medium"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/lock_warning_text"
+                android:textSize="26sp"
+                tools:text="0:27" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/locked_out_sub"
+                android:textColor="@color/lock_warning_sub"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- Pattern entry (shown instead of the keypad when the lock type is Pattern) -->
     <com.amerganim.lockapp.PatternLockView
         android:id="@+id/patternView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginVertical="16dp"
+        android:layout_weight="1"
         android:visibility="gone" />
 
     <Space
@@ -83,36 +136,57 @@
         layout="@layout/layout_keypad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginHorizontal="-6dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/fingerprintButton"
         style="@style/Widget.Material3.Button.TextButton.Icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/bg_pill_ghost_lock"
         android:text="@string/use_fingerprint"
-        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:textColor="@color/lock_text"
+        android:fontFamily="@font/instrument_sans_medium"
+        android:textSize="15sp"
         android:visibility="gone"
-        app:icon="@drawable/ic_fingerprint"
-        app:iconTint="@color/white" />
+        app:icon="@drawable/ic_fingerprint_line"
+        app:iconSize="19dp"
+        app:iconTint="@color/lock_accent" />
+
+    <TextView
+        android:id="@+id/lockoutNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="@string/locked_out_note"
+        android:textColor="@color/lock_text_tertiary"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/forgotButton"
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="10dp"
         android:text="@string/forgot_link"
-        android:textColor="#90CAF9"
+        android:textAllCaps="false"
+        android:textColor="@color/lock_text_secondary"
+        android:textSize="13sp"
         android:visibility="gone" />
   </LinearLayout>
 
-  <!-- Fake "app keeps stopping" cover. Long-press anywhere reveals the real lock. -->
+  <!-- Fake "app keeps stopping" cover. Deliberately styled as the system's own crash
+       dialog rather than as part of this app — it is only convincing if it looks like
+       something else. Long-press anywhere reveals the real lock. -->
   <FrameLayout
       android:id="@+id/fakeCover"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:background="#CC000000"
+      android:background="#BC000000"
       android:clickable="true"
       android:focusable="true"
       android:visibility="gone">
@@ -121,26 +195,43 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:layout_marginHorizontal="32dp"
-          app:cardCornerRadius="20dp">
+          android:layout_marginHorizontal="22dp"
+          app:cardBackgroundColor="#2C2A30"
+          app:cardCornerRadius="28dp"
+          app:cardElevation="0dp"
+          app:strokeWidth="0dp">
 
           <LinearLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="24dp">
+              android:paddingHorizontal="24dp"
+              android:paddingTop="26dp"
+              android:paddingBottom="14dp">
 
               <TextView
                   android:id="@+id/fakeTitle"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:textColor="?android:attr/textColorPrimary"
-                  android:textSize="18sp" />
+                  android:lineSpacingMultiplier="1.35"
+                  android:textColor="#E8E3EA"
+                  android:fontFamily="@font/instrument_sans_medium"
+                  android:textSize="19sp"
+                  tools:text="Messages keeps stopping" />
+
+              <TextView
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="14dp"
+                  android:lineSpacingMultiplier="1.5"
+                  android:text="@string/fake_body"
+                  android:textColor="#B6B1BC"
+                  android:textSize="14sp" />
 
               <LinearLayout
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_marginTop="24dp"
+                  android:layout_marginTop="18dp"
                   android:gravity="end"
                   android:orientation="horizontal">
 
@@ -149,14 +240,22 @@
                       style="@style/Widget.Material3.Button.TextButton"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:text="@string/fake_app_info" />
+                      android:text="@string/fake_app_info"
+                      android:textAllCaps="false"
+                      android:textColor="#A8C7FA"
+                      android:fontFamily="@font/instrument_sans_medium"
+                      android:textSize="14sp" />
 
                   <com.google.android.material.button.MaterialButton
                       android:id="@+id/fakeClose"
                       style="@style/Widget.Material3.Button.TextButton"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:text="@string/fake_close" />
+                      android:text="@string/fake_close"
+                      android:textAllCaps="false"
+                      android:textColor="#A8C7FA"
+                      android:fontFamily="@font/instrument_sans_medium"
+                      android:textSize="14sp" />
               </LinearLayout>
           </LinearLayout>
       </com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,27 @@
+<resources>
+    <!--
+      Obsidian palette — dark. This is the set the design canvas is drawn in; the light
+      values in values/colors.xml are the same roles inverted.
+    -->
+    <color name="ground">#0B0D12</color>
+    <color name="surface">#10141B</color>
+    <color name="surface_raised">#171C26</color>
+    <color name="hairline">#1E2430</color>
+    <color name="hairline_strong">#242A38</color>
+
+    <color name="text_primary">#E8EBF2</color>
+    <color name="text_secondary">#99A1B3</color>
+    <color name="text_tertiary">#6E768A</color>
+
+    <color name="accent">#45C0AE</color>
+    <color name="accent_surface">#0E1716</color>
+    <color name="accent_border">#2C4A46</color>
+    <color name="on_accent">#04120F</color>
+
+    <color name="warning">#E6A845</color>
+    <color name="warning_surface">#15110B</color>
+    <color name="warning_border">#3A2E18</color>
+    <color name="warning_text">#D9C49A</color>
+
+    <color name="error">#EF7A6D</color>
+</resources>

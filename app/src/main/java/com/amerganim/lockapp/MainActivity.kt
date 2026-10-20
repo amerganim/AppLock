@@ -47,10 +47,8 @@ class MainActivity : SecureActivity() {
         prefs = LockPrefs(this)
 
         binding.appsList.layoutManager = LinearLayoutManager(this)
-        binding.toolbar.setOnMenuItemClickListener { item ->
-            if (item.itemId == R.id.action_settings) {
-                startActivity(Intent(this, SettingsActivity::class.java)); true
-            } else false
+        binding.settingsButton.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
         binding.permUsage.setOnClickListener {
@@ -125,6 +123,21 @@ class MainActivity : SecureActivity() {
 
     private fun updateProtectionLabel(on: Boolean) {
         binding.protectionStatus.setText(if (on) R.string.protection_on else R.string.protection_off)
+        val locked = prefs.getLockedApps().size
+        binding.protectionDetail.text = if (locked == 0) {
+            getString(R.string.protection_detail_none)
+        } else {
+            resources.getQuantityString(R.plurals.protection_detail, locked, locked)
+        }
+        // The dot is the at-a-glance answer to "is it on?", so it dims with the switch.
+        binding.protectionDot.alpha = if (on) 1f else 0.3f
+        updateAppsCount()
+    }
+
+    private fun updateAppsCount() {
+        if (!appsLoaded) return
+        binding.appsCount.text =
+            getString(R.string.apps_count, prefs.getLockedApps().size, allApps.size)
     }
 
     /** Briefly mark the system Settings/installer screens as unlocked so our own
@@ -171,6 +184,7 @@ class MainActivity : SecureActivity() {
             )
             binding.appsList.adapter = adapter
             applyFilter(binding.searchInput.text?.toString().orEmpty())
+            updateAppsCount()
         }
     }
 
@@ -181,6 +195,7 @@ class MainActivity : SecureActivity() {
      */
     private fun onAppLockToggled(pkg: String, locked: Boolean) {
         prefs.setLocked(pkg, locked)
+        updateProtectionLabel(prefs.protectionEnabled)
         if (!shouldAutoEnableProtection(
                 justLocked = locked,
                 protectionEnabled = prefs.protectionEnabled,

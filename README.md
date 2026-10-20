@@ -63,6 +63,16 @@ no ads, and no tracking.
   locked ones, and does nothing on phones where Recents is a state of the launcher
   activity rather than its own activity.
 
+### Design
+
+The interface is one small system, not Material defaults: a semantic palette (ground,
+surface, hairline, three text levels, a single jade accent, amber kept for waiting and
+warning) defined once for light and once for dark, and Instrument Sans with Instrument
+Serif for the wordmark, bundled as font resources. Screens are built from the same few
+parts — bordered card groups, hairline dividers, pill buttons, a squircle keypad whose
+palette comes from theme attributes so it can be dark on the lock screen and themed in
+setup. Licences for the bundled fonts: [`docs/third-party-licenses.md`](docs/third-party-licenses.md).
+
 ### Experience
 - Guided **onboarding**, a full **Settings** screen, **light/dark/system themes**, a
   splash screen, and an adaptive launcher icon.

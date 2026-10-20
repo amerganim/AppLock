@@ -2,14 +2,13 @@
     <string name="app_name">LockApp</string>
 
     <!-- Setup / lock type -->
-    <string name="choose_lock_title">Choose how to lock</string>
     <string name="lock_type_pin">PIN</string>
     <string name="lock_type_pattern">Pattern</string>
     <string name="set_pin_title">Set a PIN</string>
     <string name="confirm_pin_title">Confirm your PIN</string>
     <string name="set_pattern_title">Draw a pattern</string>
     <string name="confirm_pattern_title">Draw the pattern again</string>
-    <string name="set_pin_subtitle">Pick 4 to 8 digits, then tap ✓.</string>
+    <string name="set_pin_subtitle">Four to eight digits. Longer is harder to guess — tap ✓ when the PIN is complete.</string>
     <string name="set_pattern_subtitle">Connect at least 4 dots.</string>
     <string name="confirm_pin_subtitle">Enter the same PIN again.</string>
     <string name="confirm">Confirm</string>
@@ -19,11 +18,12 @@
     <string name="lock_saved">Lock updated</string>
 
     <!-- Lock screen -->
-    <string name="enter_pin_title">Enter PIN</string>
-    <string name="enter_pattern_title">Draw pattern</string>
-    <string name="wrong_pin">Wrong PIN</string>
+    <string name="enter_pin_title">Enter your PIN</string>
+    <string name="enter_pattern_title">Draw your pattern</string>
     <string name="wrong_credential">Incorrect — try again</string>
     <string name="locked_out">Too many wrong attempts. Try again in %1$s</string>
+    <string name="locked_out_sub">until you can try again</string>
+    <string name="locked_out_note">Fingerprint is not affected by the wait</string>
     <string name="forgot_link">Forgot?</string>
 
     <!-- Biometric -->
@@ -35,16 +35,22 @@
     <string name="biometric_unlock_desc">Quick unlock with your fingerprint or face. Your PIN/pattern still works.</string>
 
     <!-- Welcome / onboarding -->
-    <string name="welcome_title">Welcome to LockApp</string>
-    <string name="welcome_subtitle">Lock any app with a PIN, pattern, or fingerprint.</string>
-    <string name="welcome_point_lock">Lock any app you choose</string>
-    <string name="welcome_point_biometric">Quick unlock with fingerprint or face</string>
-    <string name="welcome_point_private">Everything stays on your device</string>
+    <string name="welcome_title">Your apps,
+yours alone.</string>
+    <string name="welcome_subtitle">Lock any app behind a PIN, a pattern or your fingerprint. Nothing you lock away ever leaves this phone.</string>
+    <string name="welcome_point_private_title">Nothing leaves your phone</string>
+    <string name="welcome_point_private_body">No account, no ads, and no internet permission at all.</string>
+    <string name="welcome_point_biometric_title">Open in a tap</string>
+    <string name="welcome_point_biometric_body">Fingerprint or face unlock, with your PIN always as a fallback.</string>
+    <string name="welcome_point_hidden_title">Hidden by design</string>
+    <string name="welcome_point_hidden_body">Locked screens stay out of screenshots and the app switcher.</string>
+    <string name="welcome_footnote">No account. No ads. No tracking.</string>
     <string name="get_started">Get Started</string>
 
     <!-- Recovery -->
     <string name="recovery_title">Recovery question</string>
-    <string name="recovery_subtitle">If you forget your lock, answer this to reset it.</string>
+    <string name="recovery_subtitle">Answer one question to reset your lock. Set it now — without it, a forgotten PIN means clearing the app and starting again.</string>
+    <string name="recovery_note">Your answer is stored the same way as your PIN: as a salted hash on this phone. Nobody, including this app, can read it back.</string>
     <string name="recovery_question_hint">Security question</string>
     <string name="recovery_answer_hint">Your answer</string>
     <string name="recovery_question_title">Recovery question</string>
@@ -54,7 +60,7 @@
     <string name="recovery_not_set">Not set — tap to add</string>
     <string name="recovery_wrong">Incorrect answer</string>
     <string name="no_recovery">No recovery question was set.</string>
-    <string name="forgot_title">Answer to reset your lock</string>
+    <string name="forgot_title">Reset your lock</string>
     <string name="verify">Verify</string>
     <string name="save">Save</string>
     <string name="skip">Skip for now</string>
@@ -70,6 +76,11 @@
     <string name="permissions_needed">Grant the required permissions first</string>
     <string name="protection_auto_enabled">Protection turned on</string>
     <string name="search_apps">Search apps</string>
+    <string name="all_apps">All apps</string>
+    <string name="protection_detail_none">No apps locked yet</string>
+    <string name="apps_count">%1$d of %2$d locked</string>
+    <string name="app_state_locked">Locked</string>
+    <string name="app_state_unlocked">Not locked</string>
     <string name="delete">Delete</string>
 
     <!-- Settings -->
@@ -83,12 +94,16 @@
     <string name="schedule_window_title">Pause window</string>
     <string name="schedule_window_value">%1$s – %2$s</string>
     <string name="section_about">About</string>
+    <string name="section_concealment">Concealment</string>
+    <string name="back">Back</string>
     <string name="section_private">Private</string>
     <string name="vault_title">Photo &amp; video vault</string>
     <string name="vault_desc">Hide photos and videos behind your lock, encrypted on this device.</string>
     <string name="vault_count">%1$d items</string>
     <string name="vault_add">Add media</string>
-    <string name="vault_empty">Vault is empty. Tap + to add photos or videos.</string>
+    <string name="vault_empty">Nothing in the vault yet. Tap + to move photos or videos in.</string>
+    <string name="vault_encrypted_note">Encrypted with AES-256 on this phone, readable only after you unlock.</string>
+    <string name="intruder_explainer">Taken by the front camera after repeated wrong attempts. Kept on this phone and never uploaded.</string>
     <string name="vault_export">Export to gallery</string>
     <string name="vault_delete">Delete</string>
     <string name="vault_delete_confirm">Delete this item from the vault?</string>
@@ -127,6 +142,7 @@
     <string name="recents_lock_title">Lock the Recents screen</string>
     <string name="recents_lock_desc">Ask for your lock before the task switcher is shown, so previews of locked apps stay hidden. Android will not let any app blank a single preview, so this hides every app\'s preview, not just locked ones. Some phones build Recents into the home screen, where this has no effect.</string>
     <string name="recents_screen">Recent apps</string>
+    <string name="fake_body">The app stopped unexpectedly. You can close it or check its details.</string>
     <string name="fake_close">Close app</string>
     <string name="fake_app_info">App info</string>
     <string name="privacy_policy">Privacy policy</string>
@@ -152,6 +168,11 @@
     <string name="autolock_channel_name">Auto-locked apps</string>
     <string name="autolock_notif_title">App locked</string>
     <string name="autolock_notif_text">%1$s was locked automatically.</string>
+
+    <plurals name="protection_detail">
+        <item quantity="one">%1$d app locked</item>
+        <item quantity="other">%1$d apps locked</item>
+    </plurals>
 
     <plurals name="tries_left">
         <item quantity="one">Incorrect — %1$d try left before a timeout</item>

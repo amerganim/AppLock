@@ -1,7 +1,57 @@
 <resources>
-    <color name="primary">#3F51B5</color>
-    <color name="primary_dark">#303F9F</color>
-    <color name="accent">#FF4081</color>
-    <color name="lock_bg">#11151F</color>
+    <!--
+      Obsidian palette — light.
+
+      The design is drawn dark (values-night); these are the same roles inverted, so the
+      Theme setting keeps working. One accent only: jade carries "protected", amber is
+      reserved for waiting and warning, and nothing else is coloured.
+    -->
+    <color name="ground">#F7F8FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_raised">#F1F3F7</color>
+    <color name="hairline">#E4E7EE</color>
+    <color name="hairline_strong">#D3D8E2</color>
+
+    <color name="text_primary">#11141A</color>
+    <color name="text_secondary">#545B6B</color>
+    <color name="text_tertiary">#6D7484</color>
+
+    <!-- Darkened from the canvas jade so it still passes on a light ground. -->
+    <color name="accent">#0C7466</color>
+    <color name="accent_surface">#E7F3F1</color>
+    <color name="accent_border">#B9DCD6</color>
+    <color name="on_accent">#FFFFFF</color>
+
+    <color name="warning">#8A5A00</color>
+    <color name="warning_surface">#FCF5E8</color>
+    <color name="warning_border">#E8D8B4</color>
+    <color name="warning_text">#6B4E12</color>
+
+    <color name="error">#B3261E</color>
+
+    <!-- The lock screen stays dark in both themes: it is shown over someone else's app,
+         and a light flash there would be jarring at any hour. -->
+    <color name="lock_bg">#0B0D12</color>
+    <color name="lock_surface">#13171F</color>
+    <color name="lock_hairline">#1E2430</color>
+    <color name="lock_hairline_strong">#242A38</color>
+    <color name="lock_text">#E8EBF2</color>
+    <color name="lock_text_secondary">#99A1B3</color>
+    <color name="lock_text_tertiary">#6E768A</color>
+    <color name="lock_accent">#45C0AE</color>
+    <color name="lock_accent_surface">#0F1A19</color>
+    <color name="lock_accent_border">#2C4A46</color>
+    <color name="lock_on_accent">#04120F</color>
+    <color name="lock_error">#EF7A6D</color>
+    <color name="lock_pattern_idle">#2B3240</color>
+    <color name="lock_warning">#E6A845</color>
+    <color name="lock_warning_text">#F0C274</color>
+    <color name="lock_warning_sub">#BBA47C</color>
+    <color name="lock_warning_surface">#1A1510</color>
+    <color name="lock_warning_border">#3A2E18</color>
+
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Splash background; the launcher icon keeps its own colours. -->
+    <color name="primary">#0B0D12</color>
 </resources>

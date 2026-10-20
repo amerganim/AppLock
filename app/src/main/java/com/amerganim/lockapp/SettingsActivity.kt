@@ -47,7 +47,7 @@ class SettingsActivity : SecureActivity() {
         dpm = getSystemService(DevicePolicyManager::class.java)
         adminComponent = AdminReceiver.component(this)
 
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.backButton.setOnClickListener { finish() }
 
         binding.rowChangeLock.setOnClickListener {
             startActivity(Intent(this, SetupLockActivity::class.java))

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/keypadGrid"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -21,18 +22,28 @@
 
     <!-- Submits a variable-length PIN. Hidden while unlocking, where the saved length
          is known and the PIN submits itself as soon as it is complete. -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnOk"
         style="@style/PinKey"
+        android:background="@drawable/bg_key_accent"
         android:contentDescription="@string/confirm"
-        android:text="✓"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        app:icon="@drawable/ic_check_bold"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="24dp"
+        app:iconTint="?attr/lockAccentColor" />
 
     <Button android:id="@+id/btn0" style="@style/PinKey" android:text="0" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDelete"
         style="@style/PinKey"
+        android:background="@drawable/bg_key_quiet"
         android:contentDescription="@string/delete"
-        android:text="⌫" />
+        app:icon="@drawable/ic_backspace"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="24dp"
+        app:iconTint="?attr/lockKeyMuted" />
 </GridLayout>

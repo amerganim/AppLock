@@ -152,6 +152,10 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 | Feature graphic (1024×500) | `docs/feature-graphic.png` | |
 | Store icon (512×512) | `docs/play-icon-512.png` | |
 
+> **The screenshots in `docs/screenshots/` predate the Obsidian redesign and no longer
+> show the app.** They must be re-shot on a device before the next upload; `RELEASE.md`
+> has the procedure for capturing FLAG_SECURE screens.
+
 **Before uploading the screenshots:** `02-home` shows that phone's real installed apps —
 other companies' names and icons in your listing can draw a trademark complaint, and the
 list is personal. Consider re-shooting it on a device with a curated set of apps.

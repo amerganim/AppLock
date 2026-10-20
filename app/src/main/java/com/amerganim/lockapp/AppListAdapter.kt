@@ -44,10 +44,13 @@ class AppListAdapter(
         with(holder.binding) {
             name.text = item.label
             icon.setImageDrawable(item.icon)
+            val locked = isLocked(item.packageName)
+            state.setText(if (locked) R.string.app_state_locked else R.string.app_state_unlocked)
             // Detach listener before setting state so recycling doesn't fire it.
             lockSwitch.setOnCheckedChangeListener(null)
-            lockSwitch.isChecked = isLocked(item.packageName)
+            lockSwitch.isChecked = locked
             lockSwitch.setOnCheckedChangeListener { _, checked ->
+                state.setText(if (checked) R.string.app_state_locked else R.string.app_state_unlocked)
                 onToggle(item.packageName, checked)
             }
             root.setOnClickListener { lockSwitch.toggle() }

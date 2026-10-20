@@ -44,6 +44,9 @@ class LockScreenActivity : AppCompatActivity() {
     private var biometricPromptShowing = false
     private var cooldownJob: Job? = null
 
+    /** Whether the keypad belongs on this screen at all: it does not in pattern mode. */
+    private var keypadVisibility = View.VISIBLE
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Prevent the credential from showing up in screenshots / the recents thumbnail.
@@ -115,9 +118,10 @@ class LockScreenActivity : AppCompatActivity() {
         val type = credential.lockType()
         builtType = type
         val pin = type == LockType.PIN
-        binding.dots.root.visibility = if (pin) View.VISIBLE else View.GONE
-        binding.keypad.root.visibility = if (pin) View.VISIBLE else View.GONE
-        binding.keypadSpacer.visibility = if (pin) View.VISIBLE else View.GONE
+        keypadVisibility = if (pin) View.VISIBLE else View.GONE
+        binding.dots.root.visibility = keypadVisibility
+        binding.keypad.root.visibility = keypadVisibility
+        binding.keypadSpacer.visibility = keypadVisibility
         binding.patternView.visibility = if (pin) View.GONE else View.VISIBLE
         binding.title.setText(if (pin) R.string.enter_pin_title else R.string.enter_pattern_title)
 
@@ -304,10 +308,11 @@ class LockScreenActivity : AppCompatActivity() {
             while (isActive) {
                 val left = AttemptGuard.remainingCooldownMs(prefs, AttemptScope.UNLOCK)
                 if (left <= 0L) break
-                showStatus(getString(R.string.locked_out, AttemptGuard.formatCountdown(left)))
+                showLockout(AttemptGuard.formatCountdown(left))
                 delay(COUNTDOWN_TICK_MS)
             }
             setInputEnabled(true)
+            showLockout(null)
             showStatus(null)
         }
     }
@@ -321,6 +326,29 @@ class LockScreenActivity : AppCompatActivity() {
         if (enabled) {
             pinPad?.reset()
             binding.patternView.clearPattern()
+        }
+    }
+
+    /**
+     * The wait replaces the keypad rather than sitting under it: there is nothing to
+     * type, so offering a keypad would only invite more wrong attempts.
+     */
+    private fun showLockout(countdown: String?) {
+        val waiting = countdown != null
+        binding.lockoutCard.visibility = if (waiting) View.VISIBLE else View.GONE
+        // Biometrics are rate-limited by the hardware, so the wait does not apply to
+        // them — worth saying, or the screen looks like a dead end.
+        binding.lockoutNote.visibility =
+            if (waiting && binding.fingerprintButton.visibility == View.VISIBLE) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        binding.keypad.root.visibility = if (waiting) View.GONE else keypadVisibility
+        binding.keypadSpacer.visibility = if (waiting) View.GONE else keypadVisibility
+        if (countdown != null) {
+            binding.lockoutCountdown.text = countdown
+            showStatus(null)
         }
     }
 

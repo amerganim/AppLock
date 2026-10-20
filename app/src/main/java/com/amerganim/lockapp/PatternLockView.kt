@@ -2,11 +2,11 @@ package com.amerganim.lockapp
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.ContextCompat
 import kotlin.math.hypot
 import kotlin.math.min
 
@@ -29,9 +29,9 @@ class PatternLockView @JvmOverloads constructor(
     private var error = false
     private var inputEnabled = true
 
-    private val normalColor = Color.parseColor("#546E7A")
-    private val activeColor = Color.parseColor("#5C6BC0")
-    private val errorColor = Color.parseColor("#E53935")
+    private val normalColor = ContextCompat.getColor(context, R.color.lock_pattern_idle)
+    private val activeColor = ContextCompat.getColor(context, R.color.lock_accent)
+    private val errorColor = ContextCompat.getColor(context, R.color.lock_error)
 
     private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

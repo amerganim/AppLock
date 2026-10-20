@@ -3,17 +3,49 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/ground"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
+        android:background="@color/ground"
         app:menu="@menu/menu_vault"
-        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIcon="@drawable/ic_chevron_left"
+        app:navigationIconTint="@color/text_secondary"
         app:title="@string/vault_title"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/text_primary" />
+
+    <!-- Says plainly what protects these files, which is the whole reason to use it. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp">
+
+        <ImageView
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_lock_line"
+            app:tint="@color/accent" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="11dp"
+            android:layout_weight="1"
+            android:lineSpacingMultiplier="1.35"
+            android:text="@string/vault_encrypted_note"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -24,22 +56,30 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="4dp" />
+            android:paddingHorizontal="21dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="96dp"
+            android:scrollbars="none" />
 
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:indeterminateTint="@color/accent"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/empty"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.5"
+            android:paddingHorizontal="48dp"
             android:text="@string/vault_empty"
-            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
             android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -47,9 +87,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="20dp"
+            android:layout_margin="24dp"
             android:contentDescription="@string/vault_add"
-            android:src="@drawable/ic_add"
-            app:tint="@color/white" />
+            android:src="@drawable/ic_plus"
+            app:backgroundTint="@color/accent"
+            app:elevation="0dp"
+            app:tint="@color/on_accent" />
     </FrameLayout>
 </LinearLayout>

@@ -3,4 +3,21 @@
     <!-- True for screens painted on the dark lock background, which need light status
          and navigation bar icons whatever the app theme is. -->
     <attr name="lockAppDarkBackground" format="boolean" />
+
+    <!--
+      The PIN keypad appears both on the lock screen, which is always dark, and in
+      setup, which follows the user's theme. These attributes let one set of key
+      drawables serve both: the app theme points them at the themed palette (which has
+      its own night values), and the lock theme pins them to the dark one.
+    -->
+    <attr name="lockKeySurface" format="color" />
+    <attr name="lockKeyStroke" format="color" />
+    <attr name="lockKeyText" format="color" />
+    <attr name="lockKeyMuted" format="color" />
+    <attr name="lockAccentColor" format="color" />
+    <attr name="lockAccentSurface" format="color" />
+    <attr name="lockAccentStroke" format="color" />
+    <attr name="lockDotColor" format="color" />
+    <attr name="lockErrorColor" format="color" />
+    <attr name="lockSubtleText" format="color" />
 </resources>

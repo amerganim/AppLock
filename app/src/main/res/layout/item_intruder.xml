@@ -4,7 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
-    app:cardCornerRadius="12dp">
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/hairline"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +18,8 @@
         <ImageView
             android:id="@+id/photo"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="186dp"
+            android:background="@color/surface_raised"
             android:contentDescription="@string/intruder_photos"
             android:scaleType="centerCrop" />
 
@@ -22,7 +27,10 @@
             android:id="@+id/caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:textSize="12sp" />
+            android:lineSpacingMultiplier="1.4"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="13dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12.5sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
