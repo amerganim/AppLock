@@ -26,9 +26,14 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Skip the action's default install: it asks for the long-obsolete "tools"
+          # package, which Google has removed from the SDK repository, and sdkmanager
+          # exits non-zero. The packages this build actually needs are installed below.
+          packages: ''
 
       - name: Install SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;36.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - name: Decode upload keystore
         env:
