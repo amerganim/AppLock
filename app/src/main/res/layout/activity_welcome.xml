@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/welcome_point_private_title"
                 android:textColor="@color/text_primary"
-                android:fontFamily="@font/instrument_sans_medium"
+                android:textAppearance="@style/TextAppearance.LockApp.Medium"
                 android:textSize="15sp" />
 
             <TextView
@@ -122,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/welcome_point_biometric_title"
                 android:textColor="@color/text_primary"
-                android:fontFamily="@font/instrument_sans_medium"
+                android:textAppearance="@style/TextAppearance.LockApp.Medium"
                 android:textSize="15sp" />
 
             <TextView
@@ -168,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/welcome_point_hidden_title"
                 android:textColor="@color/text_primary"
-                android:fontFamily="@font/instrument_sans_medium"
+                android:textAppearance="@style/TextAppearance.LockApp.Medium"
                 android:textSize="15sp" />
 
             <TextView

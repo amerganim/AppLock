@@ -24,8 +24,7 @@
          is known and the PIN submits itself as soon as it is complete. -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnOk"
-        style="@style/PinKey"
-        android:background="@drawable/bg_key_accent"
+        style="@style/PinKey.Accent"
         android:contentDescription="@string/confirm"
         android:visibility="invisible"
         app:icon="@drawable/ic_check_bold"
@@ -38,8 +37,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDelete"
-        style="@style/PinKey"
-        android:background="@drawable/bg_key_quiet"
+        style="@style/PinKey.Quiet"
         android:contentDescription="@string/delete"
         app:icon="@drawable/ic_backspace"
         app:iconGravity="textStart"

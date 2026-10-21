@@ -18,6 +18,7 @@
     <attr name="lockAccentSurface" format="color" />
     <attr name="lockAccentStroke" format="color" />
     <attr name="lockDotColor" format="color" />
+    <attr name="lockPatternIdle" format="color" />
     <attr name="lockErrorColor" format="color" />
     <attr name="lockSubtleText" format="color" />
 </resources>

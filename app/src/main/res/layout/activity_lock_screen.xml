@@ -45,7 +45,7 @@
         android:letterSpacing="-0.015"
         android:text="@string/enter_pin_title"
         android:textColor="@color/lock_text"
-        android:fontFamily="@font/instrument_sans_medium"
+        android:textAppearance="@style/TextAppearance.LockApp.Medium"
         android:textSize="26sp" />
 
     <include
@@ -100,7 +100,7 @@
                 android:id="@+id/lockoutCountdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/instrument_sans_medium"
+                android:textAppearance="@style/TextAppearance.LockApp.Medium"
                 android:fontFeatureSettings="tnum"
                 android:textColor="@color/lock_warning_text"
                 android:textSize="26sp"
@@ -140,20 +140,11 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/fingerprintButton"
-        style="@style/Widget.Material3.Button.TextButton.Icon"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
+        style="@style/LockGhostPill"
         android:layout_marginTop="22dp"
-        android:background="@drawable/bg_pill_ghost_lock"
         android:text="@string/use_fingerprint"
-        android:textAllCaps="false"
-        android:textColor="@color/lock_text"
-        android:fontFamily="@font/instrument_sans_medium"
-        android:textSize="15sp"
         android:visibility="gone"
-        app:icon="@drawable/ic_fingerprint_line"
-        app:iconSize="19dp"
-        app:iconTint="@color/lock_accent" />
+        app:icon="@drawable/ic_fingerprint_line" />
 
     <TextView
         android:id="@+id/lockoutNote"
@@ -215,7 +206,7 @@
                   android:layout_height="wrap_content"
                   android:lineSpacingMultiplier="1.35"
                   android:textColor="#E8E3EA"
-                  android:fontFamily="@font/instrument_sans_medium"
+                  android:textAppearance="@style/TextAppearance.LockApp.Medium"
                   android:textSize="19sp"
                   tools:text="Messages keeps stopping" />
 
@@ -243,7 +234,7 @@
                       android:text="@string/fake_app_info"
                       android:textAllCaps="false"
                       android:textColor="#A8C7FA"
-                      android:fontFamily="@font/instrument_sans_medium"
+                      android:textAppearance="@style/TextAppearance.LockApp.Medium"
                       android:textSize="14sp" />
 
                   <com.google.android.material.button.MaterialButton
@@ -254,7 +245,7 @@
                       android:text="@string/fake_close"
                       android:textAllCaps="false"
                       android:textColor="#A8C7FA"
-                      android:fontFamily="@font/instrument_sans_medium"
+                      android:textAppearance="@style/TextAppearance.LockApp.Medium"
                       android:textSize="14sp" />
               </LinearLayout>
           </LinearLayout>

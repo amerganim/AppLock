@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.use
 import kotlin.math.hypot
 import kotlin.math.min
 
@@ -29,9 +30,16 @@ class PatternLockView @JvmOverloads constructor(
     private var error = false
     private var inputEnabled = true
 
-    private val normalColor = ContextCompat.getColor(context, R.color.lock_pattern_idle)
-    private val activeColor = ContextCompat.getColor(context, R.color.lock_accent)
-    private val errorColor = ContextCompat.getColor(context, R.color.lock_error)
+    // From the theme, not fixed: the same grid is drawn on the dark lock screen and on
+    // the light setup screen, and the lock colours are unreadable on a light ground.
+    private fun themeColor(attr: Int, fallback: Int) =
+        context.obtainStyledAttributes(intArrayOf(attr)).use {
+            it.getColor(0, ContextCompat.getColor(context, fallback))
+        }
+
+    private val normalColor = themeColor(R.attr.lockPatternIdle, R.color.lock_pattern_idle)
+    private val activeColor = themeColor(R.attr.lockAccentColor, R.color.lock_accent)
+    private val errorColor = themeColor(R.attr.lockErrorColor, R.color.lock_error)
 
     private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

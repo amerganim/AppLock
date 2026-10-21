@@ -62,6 +62,9 @@ class SettingsActivity : SecureActivity() {
         binding.scheduleWindowRow.setOnClickListener { pickScheduleWindow() }
         binding.fakeCoverSwitch.setOnCheckedChangeListener { _, checked -> prefs.fakeCoverEnabled = checked }
         binding.recentsSwitch.setOnCheckedChangeListener { _, checked -> prefs.lockRecentsScreen = checked }
+        binding.rowLicenses.setOnClickListener {
+            startActivity(Intent(this, LicensesActivity::class.java))
+        }
         binding.rowPrivacy.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))))
         }

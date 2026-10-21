@@ -23,7 +23,7 @@
         android:letterSpacing="-0.015"
         android:text="@string/forgot_title"
         android:textColor="@color/lock_text"
-        android:fontFamily="@font/instrument_sans_medium"
+        android:textAppearance="@style/TextAppearance.LockApp.Medium"
         android:textSize="26sp" />
 
     <TextView

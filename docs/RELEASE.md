@@ -93,6 +93,7 @@ Verify the APK signature:
 |---|---|---|
 | 1.0.1 | 1.0.1 | 2 |
 | 1.1.0 | 1.1.0 | 3 |
+| 1.2.0 | 1.2.0 | 4 |
 
 `targetSdk` must stay within Play's annual requirement — API 36 (Android 16) for new
 apps and updates from 31 Aug 2026. Raising it is not a formality: Android 16 ignores

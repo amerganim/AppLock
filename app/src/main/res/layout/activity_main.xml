@@ -81,7 +81,7 @@
                     android:layout_marginStart="8dp"
                     android:text="@string/protection_off"
                     android:textColor="@color/text_primary"
-                    android:fontFamily="@font/instrument_sans_medium"
+                    android:textAppearance="@style/TextAppearance.LockApp.Medium"
                     android:textSize="17sp" />
             </LinearLayout>
 

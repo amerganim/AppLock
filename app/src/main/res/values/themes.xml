@@ -12,6 +12,7 @@
         <item name="lockAccentSurface">@color/accent_surface</item>
         <item name="lockAccentStroke">@color/accent_border</item>
         <item name="lockDotColor">@color/text_primary</item>
+        <item name="lockPatternIdle">@color/pattern_idle</item>
         <item name="lockErrorColor">@color/error</item>
         <item name="lockSubtleText">@color/text_tertiary</item>
 
@@ -23,15 +24,47 @@
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOutline">@color/hairline_strong</item>
         <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/surface_raised</item>
+        <item name="colorOnErrorContainer">@color/error</item>
 
+        <!--
+          Everything below is a Material3 role some widget reads on its own: the
+          segmented toggle, switch tracks, dialogs, snackbars. Left unmapped they fall
+          back to Material's baseline purple, which is nowhere in this design.
+        -->
+        <item name="colorPrimaryContainer">@color/accent_surface</item>
+        <item name="colorOnPrimaryContainer">@color/accent</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/on_accent</item>
+        <item name="colorSecondaryContainer">@color/accent_surface</item>
+        <item name="colorOnSecondaryContainer">@color/accent</item>
+        <item name="colorTertiary">@color/accent</item>
+        <item name="colorOnTertiary">@color/on_accent</item>
+        <item name="colorTertiaryContainer">@color/accent_surface</item>
+        <item name="colorOnTertiaryContainer">@color/accent</item>
+
+        <item name="colorSurfaceVariant">@color/surface_raised</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutlineVariant">@color/hairline</item>
+        <item name="colorSurfaceDim">@color/ground</item>
+        <item name="colorSurfaceBright">@color/surface</item>
+        <item name="colorSurfaceContainerLowest">@color/surface</item>
+        <item name="colorSurfaceContainerLow">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface_raised</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_raised</item>
+        <item name="colorSurfaceContainerHighest">@color/hairline</item>
+        <item name="colorSurfaceInverse">@color/text_primary</item>
+        <item name="colorOnSurfaceInverse">@color/surface</item>
+
+        <item name="materialSwitchStyle">@style/AppSwitch</item>
         <item name="android:windowBackground">@color/ground</item>
         <item name="android:colorBackground">@color/ground</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_tertiary</item>
 
-        <item name="android:fontFamily">@font/instrument_sans</item>
-        <item name="fontFamily">@font/instrument_sans</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.Body</item>
         <item name="textAppearanceBodyLarge">@style/TextAppearance.LockApp.BodyLarge</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.LockApp.BodyMedium</item>
         <item name="textAppearanceTitleMedium">@style/TextAppearance.LockApp.TitleMedium</item>
@@ -55,10 +88,23 @@
         <item name="lockAccentSurface">@color/lock_accent_surface</item>
         <item name="lockAccentStroke">@color/lock_accent_border</item>
         <item name="lockDotColor">@color/lock_text</item>
+        <item name="lockPatternIdle">@color/lock_pattern_idle</item>
         <item name="lockErrorColor">@color/lock_error</item>
         <item name="lockSubtleText">@color/lock_text_tertiary</item>
         <item name="colorPrimary">@color/lock_accent</item>
         <item name="colorOnPrimary">@color/lock_on_accent</item>
+        <item name="colorPrimaryContainer">@color/lock_accent_surface</item>
+        <item name="colorOnPrimaryContainer">@color/lock_accent</item>
+        <item name="colorSecondaryContainer">@color/lock_accent_surface</item>
+        <item name="colorOnSecondaryContainer">@color/lock_accent</item>
+        <item name="colorSurface">@color/lock_surface</item>
+        <item name="colorOnSurface">@color/lock_text</item>
+        <item name="colorSurfaceVariant">@color/lock_surface</item>
+        <item name="colorOnSurfaceVariant">@color/lock_text_secondary</item>
+        <item name="colorOutline">@color/lock_hairline_strong</item>
+        <item name="colorOutlineVariant">@color/lock_hairline</item>
+        <item name="colorSurfaceContainerHighest">@color/lock_hairline</item>
+        <item name="colorError">@color/lock_error</item>
         <item name="android:windowBackground">@color/lock_bg</item>
         <item name="android:statusBarColor">@color/lock_bg</item>
         <item name="android:navigationBarColor">@color/lock_bg</item>
@@ -74,7 +120,43 @@
         <item name="postSplashScreenTheme">@style/Theme.LockApp</item>
     </style>
 
+    <!--
+      The off state: a mid-grey thumb on a quiet track. Material's own unchecked thumb
+      reads colorOutline, which in this palette is a hairline border colour and all but
+      disappears.
+    -->
+    <style name="AppSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="trackTint">@color/switch_track</item>
+        <item name="thumbTint">@color/switch_thumb</item>
+        <item name="trackDecorationTint">@color/switch_track_stroke</item>
+    </style>
+
     <!-- ===== Type ===== -->
+
+    <!--
+      The app's fonts live here, not in android:fontFamily on a style: a <TextView> under
+      a Material3 theme inflates as MaterialTextView, which re-applies the text appearance
+      after the style, so a style's fontFamily is overwritten by the default Roboto.
+    -->
+    <style name="TextAppearance.LockApp.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/instrument_sans</item>
+        <item name="fontFamily">@font/instrument_sans</item>
+    </style>
+
+    <style name="TextAppearance.LockApp.Medium" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/instrument_sans_medium</item>
+        <item name="fontFamily">@font/instrument_sans_medium</item>
+    </style>
+
+    <style name="TextAppearance.LockApp.SemiBold" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/instrument_sans_semibold</item>
+        <item name="fontFamily">@font/instrument_sans_semibold</item>
+    </style>
+
+    <style name="TextAppearance.LockApp.Serif" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/instrument_serif_regular</item>
+        <item name="fontFamily">@font/instrument_serif_regular</item>
+    </style>
 
     <style name="TextAppearance.LockApp.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:fontFamily">@font/instrument_sans</item>
@@ -100,7 +182,7 @@
     <style name="Wordmark">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:fontFamily">@font/instrument_serif_regular</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.Serif</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:includeFontPadding">false</item>
@@ -115,7 +197,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">22sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_medium</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.Medium</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:letterSpacing">-0.01</item>
     </style>
@@ -135,15 +217,22 @@
 
     <!-- ===== Controls ===== -->
 
+    <!--
+      Material attributes, not android:background: MaterialButton draws its own
+      background and silently ignores a drawable set that way.
+    -->
     <style name="PinKey" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">66dp</item>
         <item name="android:layout_columnWeight">1</item>
         <item name="android:layout_gravity">fill_horizontal</item>
         <item name="android:layout_margin">6dp</item>
-        <item name="android:background">@drawable/bg_key</item>
+        <item name="backgroundTint">?attr/lockKeySurface</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="strokeColor">?attr/lockKeyStroke</item>
+        <item name="strokeWidth">1dp</item>
         <item name="android:textSize">26sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_regular</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.Body</item>
         <item name="android:textColor">?attr/lockKeyText</item>
         <item name="android:fontFeatureSettings">tnum</item>
         <item name="android:insetTop">0dp</item>
@@ -152,11 +241,20 @@
         <item name="rippleColor">#1FFFFFFF</item>
     </style>
 
+    <style name="PinKey.Quiet">
+        <item name="backgroundTint">@android:color/transparent</item>
+    </style>
+
+    <style name="PinKey.Accent">
+        <item name="backgroundTint">?attr/lockAccentSurface</item>
+        <item name="strokeColor">?attr/lockAccentStroke</item>
+    </style>
+
     <style name="PrimaryPill" parent="Widget.Material3.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">54dp</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semibold</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.SemiBold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0.01</item>
         <item name="backgroundTint">@color/accent</item>
@@ -189,6 +287,22 @@
     </style>
 
     <!-- ===== Settings rows ===== -->
+
+    <!-- The fingerprint affordance on the lock screen: outline only, always dark. -->
+    <style name="LockGhostPill" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.Medium</item>
+        <item name="android:textColor">@color/lock_text</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="cornerRadius">25dp</item>
+        <item name="strokeColor">@color/lock_hairline_strong</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="iconSize">19dp</item>
+        <item name="iconTint">@color/lock_accent</item>
+    </style>
 
     <style name="SettingsHeader" parent="SectionLabel" />
 
@@ -241,7 +355,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_medium</item>
+        <item name="android:textAppearance">@style/TextAppearance.LockApp.Medium</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
 

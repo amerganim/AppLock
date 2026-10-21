@@ -23,7 +23,11 @@ class LockApp : Application() {
         initWhenStorageIsReady()
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityStarted(activity: Activity) = LockState.onActivityStarted()
-            override fun onActivityStopped(activity: Activity) = LockState.onActivityStopped()
+            override fun onActivityStopped(activity: Activity) =
+                // A theme change tears every activity down and builds it again. That is
+                // not the app leaving the foreground, so it must not end the session and
+                // ask for the PIN again.
+                LockState.onActivityStopped(activity.isChangingConfigurations)
 
             override fun onActivityCreated(activity: Activity, state: Bundle?) {
                 // An activity means the user is past the keyguard, so if the process

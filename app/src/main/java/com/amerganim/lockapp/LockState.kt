@@ -88,11 +88,13 @@ object LockState {
     }
 
     @Synchronized
-    fun onActivityStopped() {
+    fun onActivityStopped(isConfigurationChange: Boolean = false) {
         startedActivities--
         if (startedActivities <= 0) {
             startedActivities = 0
-            settingsAuthed = false
+            // A configuration change (theme, rotation) stops the last activity before
+            // starting its replacement; that is not the app being left.
+            if (!isConfigurationChange) settingsAuthed = false
         }
     }
 

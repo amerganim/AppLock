@@ -1,6 +1,6 @@
 # LockApp — Google Play listing & release notes
 
-Current release: **1.1.0 (versionCode 3)** · `minSdk 26` · `targetSdk 36` (Android 16)
+Current release: **1.2.0 (versionCode 4)** · `minSdk 26` · `targetSdk 36` (Android 16)
 
 ## Store listing (ASO)
 
@@ -75,7 +75,17 @@ See our privacy policy for details.
 **Keywords covered:** app lock, app locker, applock, lock apps, fingerprint lock,
 pattern lock, gallery lock, photo vault, privacy, PIN lock, hide apps.
 
-### What's new (max 500 chars) — 1.1.0
+### What's new (max 500 chars) — 1.2.0
+```
+• A new look throughout: calmer type, clearer lock screen, one accent colour
+• Fixed: the first app opened after a restart could open unlocked
+• Light and dark themes now match the rest of the app
+• Changing the theme no longer asks for your PIN again
+• Added an open-source licences screen in Settings
+```
+
+<details><summary>1.1.0</summary>
+
 ```
 • Fixed a bypass where a locked app could be opened from the app switcher
 • Apps now re-lock as soon as the screen turns off
@@ -86,6 +96,7 @@ pattern lock, gallery lock, photo vault, privacy, PIN lock, hide apps.
 • Protection switches on when you lock your first app
 • Updated for Android 16
 ```
+</details>
 
 ### Privacy policy URL
 `https://amerganim.github.io/applock-privacy-policy/privacy.html`
@@ -129,11 +140,11 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 
 - [x] Real `applicationId` (`com.amerganim.lockapp`)
 - [x] `targetSdk` 36 — Play requires API 36 for new apps and updates from 31 Aug 2026
-- [x] Version bumped: **1.1.0 / versionCode 3**
+- [x] Version bumped: **1.2.0 / versionCode 4**
 - [x] Privacy policy live
 - [x] Signed release build (upload keystore + `release` signing config) — see `RELEASE.md`
 - [x] CI/CD (GitHub Actions build + tagged release)
-- [x] Phone screenshots refreshed for 1.1.0 (`docs/screenshots/`)
+- [x] Phone screenshots refreshed for 1.2.0 (`docs/screenshots/`)
 - [x] `QUERY_ALL_PACKAGES` replaced with a `<queries>` element — no declaration needed
 - [ ] Data safety form (answers above)
 - [ ] Permission declarations (table above)

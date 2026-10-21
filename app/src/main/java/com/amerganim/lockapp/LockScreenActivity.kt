@@ -249,7 +249,7 @@ class LockScreenActivity : AppCompatActivity() {
         binding.appIcon.imageTintList = ColorStateList.valueOf(
             ContextCompat.getColor(this, R.color.white)
         )
-        binding.appIcon.setImageResource(R.drawable.ic_lock)
+        binding.appIcon.setImageResource(R.drawable.ic_lock_line)
     }
 
     private fun verify(value: String) {

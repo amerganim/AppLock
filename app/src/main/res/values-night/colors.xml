@@ -24,4 +24,6 @@
     <color name="warning_text">#D9C49A</color>
 
     <color name="error">#EF7A6D</color>
+
+    <color name="pattern_idle">#2B3240</color>
 </resources>

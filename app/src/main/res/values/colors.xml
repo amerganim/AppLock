@@ -29,6 +29,9 @@
 
     <color name="error">#B3261E</color>
 
+    <!-- Pattern dots before they are touched. -->
+    <color name="pattern_idle">#BFC6D3</color>
+
     <!-- The lock screen stays dark in both themes: it is shown over someone else's app,
          and a light flash there would be jarring at any hour. -->
     <color name="lock_bg">#0B0D12</color>

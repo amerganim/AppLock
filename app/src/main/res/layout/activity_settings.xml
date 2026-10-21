@@ -261,6 +261,15 @@
 
                 <View style="@style/RowDivider" />
 
+                <LinearLayout android:id="@+id/rowLicenses" style="@style/SettingsRow">
+                    <LinearLayout style="@style/SettingsRowText">
+                        <TextView style="@style/SettingsRowTitle" android:text="@string/licenses_title" />
+                    </LinearLayout>
+                    <ImageView style="@style/RowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
                 <LinearLayout style="@style/SettingsRow" android:clickable="false" android:focusable="false">
                     <LinearLayout style="@style/SettingsRowText">
                         <TextView style="@style/SettingsRowTitle" android:text="@string/version" />
