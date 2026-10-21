@@ -159,13 +159,9 @@ the in-app **Delete** controls (vault delete, clear intruder photos, clear app d
 
 | Asset | File | Notes |
 |---|---|---|
-| Phone screenshots | `docs/screenshots/01-lock … 05-settings` | 1080×2340, **light theme**, captured on a Galaxy A15 (Android 16) |
-| Feature graphic (1024×500) | `docs/feature-graphic.png` | |
-| Store icon (512×512) | `docs/play-icon-512.png` | |
-
-> **The screenshots in `docs/screenshots/` predate the Obsidian redesign and no longer
-> show the app.** They must be re-shot on a device before the next upload; `RELEASE.md`
-> has the procedure for capturing FLAG_SECURE screens.
+| Phone screenshots | `docs/screenshots/01-lock … 05-settings` | 1080×2340, **light theme**, captured on a Galaxy A15 (Android 16) against 1.2.0 |
+| Feature graphic (1024×500) | `docs/feature-graphic.png` | Obsidian + jade, matching the app |
+| Store icon (512×512) | `docs/play-icon-512.png` | Same padlock as the launcher icon |
 
 **Before uploading the screenshots:** `02-home` shows that phone's real installed apps —
 other companies' names and icons in your listing can draw a trademark complaint, and the
