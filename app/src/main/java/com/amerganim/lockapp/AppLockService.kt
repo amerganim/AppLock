@@ -83,12 +83,22 @@ class AppLockService : Service() {
     private var lastForegroundClass: String? = null
 
     /** The home/launcher package, which also hosts the task switcher on most devices. */
+    @Volatile
     private var launcherPackage: String? = null
 
-    /** Last lock-screen launch, so it is not launched again before it can come forward. */
+    /**
+     * Last lock-screen launch, so it is not launched again before it can come forward.
+     *
+     * Written under the lock in [showLockScreen] but read from the poll loop without it,
+     * and the Recents receiver writes these from the main thread, so they are volatile.
+     */
+    @Volatile
     private var lastLaunchPkg: String? = null
+
+    @Volatile
     private var lastLaunchAt = 0L
 
+    @Volatile
     private var permissionsOk = true
     private var ticksSincePermissionCheck = PERMISSION_CHECK_TICKS
 
@@ -120,6 +130,39 @@ class AppLockService : Service() {
         }
     }
 
+    /**
+     * The Recents key, announced the moment it is pressed.
+     *
+     * The poll loop learns the switcher is up from a usage event, and on at least one
+     * device that event surfaces ~1.5 s late -- long enough to read a message in a
+     * protected app's thumbnail. This broadcast arrives within ~50 ms, so it is the
+     * trigger; the poll loop stays as the fallback for devices that never send it
+     * (gesture navigation, launchers where the switcher is a state rather than an
+     * activity).
+     */
+    private val recentsKeyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.getStringExtra(EXTRA_REASON) != REASON_RECENT_APPS) return
+            if (!shouldLockRecents()) return
+            // The switcher belongs to the launcher; that is the package the poll loop
+            // would have reported, so use it here too and keep one unlock identity.
+            showLockScreen(launcherPackage ?: packageName, System.currentTimeMillis(),
+                recents = true)
+        }
+    }
+
+    /** Whether a Recents key press should raise the lock right now. */
+    private fun shouldLockRecents(): Boolean {
+        val prefs = prefs ?: return false
+        return shouldLockRecentsOnKey(
+            screenOn = screenOn,
+            protectionEnabled = prefs.protectionEnabled,
+            lockRecentsScreen = prefs.lockRecentsScreen,
+            lockingPaused = prefs.isLockingPausedNow(),
+            permissionsOk = permissionsOk,
+        )
+    }
+
     override fun onCreate() {
         super.onCreate()
         usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -134,6 +177,12 @@ class AppLockService : Service() {
             )
         }
         launcherPackage = resolveLauncherPackage()
+        ContextCompat.registerReceiver(
+            this,
+            recentsKeyReceiver,
+            IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         ContextCompat.registerReceiver(
             this,
             screenReceiver,
@@ -265,7 +314,11 @@ class AppLockService : Service() {
         )?.activityInfo?.packageName
     }.getOrNull()
 
+    @Synchronized
     private fun showLockScreen(pkg: String, now: Long, recents: Boolean = false) {
+        // The poll loop reaches the same conclusion about a second later from the usage
+        // event; launching a second time for a lock already on screen is wasted work.
+        if (recents && pkg == lastLaunchPkg && now - lastLaunchAt < RELAUNCH_DEBOUNCE_MS) return
         lastLaunchPkg = pkg
         lastLaunchAt = now
         val intent = Intent(this, LockScreenActivity::class.java).apply {
@@ -329,6 +382,7 @@ class AppLockService : Service() {
         super.onDestroy()
         running = false
         runCatching { unregisterReceiver(screenReceiver) }
+        runCatching { unregisterReceiver(recentsKeyReceiver) }
         runCatching { unregisterReceiver(userUnlockedReceiver) }
         scope.cancel()
     }
@@ -386,6 +440,26 @@ class AppLockService : Service() {
             val name = className?.lowercase() ?: return false
             return RECENTS_CLASS_HINTS.any { name.contains(it) }
         }
+
+        /**
+         * Pure decision for the Recents key press, extracted so it can be unit-tested.
+         *
+         * Deliberately does not consult [LockState]: unlocking the switcher marks the
+         * launcher unlocked for the grace period, and the switcher has to come back
+         * covered the next time it is opened, not stay open for those few seconds.
+         */
+        fun shouldLockRecentsOnKey(
+            screenOn: Boolean,
+            protectionEnabled: Boolean,
+            lockRecentsScreen: Boolean,
+            lockingPaused: Boolean,
+            permissionsOk: Boolean,
+        ): Boolean = screenOn && protectionEnabled && lockRecentsScreen &&
+            !lockingPaused && permissionsOk
+
+        /** Extra and value the system puts on ACTION_CLOSE_SYSTEM_DIALOGS for Recents. */
+        private const val EXTRA_REASON = "reason"
+        private const val REASON_RECENT_APPS = "recentapps"
 
         private const val SYSTEM_UI_PACKAGE = "com.android.systemui"
         private val RECENTS_CLASS_HINTS = listOf("recents", "overview", "quickstep")
